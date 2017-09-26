@@ -3,7 +3,7 @@ const _ = require('lodash');
 const { parseFixture } = require('./support/fixtures');
 const { Browser, formatEntry } = require('../src/browser');
 
-describe('formatData', () => {
+describe.skip('formatData', () => {
   let tableData, tableDef;
 
   before(() => {
@@ -61,15 +61,15 @@ describe('formatData', () => {
   });
 });
 
-describe.only('formatEntry', () => {
+describe('formatEntry', () => {
   it('formats simple values', () => {
     expect(formatEntry('Name', 'felipe')).to.eql('{blue-fg}{bold}Name:{/bold}{/blue-fg} felipe');
   });
 
   it('formats objects', () => {
     const expected = `{blue-fg}{bold}Data:{/bold}{/blue-fg}
-  {blue-fg}{bold}name:{/bold}{/blue-fg} felipe
-  {blue-fg}{bold} age:{/bold}{/blue-fg} 12`;
+ {blue-fg}{bold}name:{/bold}{/blue-fg} felipe
+ {blue-fg}{bold}age: {/bold}{/blue-fg} 12`;
     expect(formatEntry('Data', { name: 'felipe', age: 12 })).to.eql(expected);
   });
 });

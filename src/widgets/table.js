@@ -51,6 +51,7 @@ function Table(options) {
     tags: true,
     interactive: options.interactive,
     screen: this.screen,
+    search: options.search,
   });
 
   this.append(this.rows);

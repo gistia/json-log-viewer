@@ -1,23 +1,19 @@
 #!/usr/bin/env node
-
+const blessed = require('blessed');
+const fs = require('fs');
+const _ = require('lodash');
 require('./polyfills');
 
-const blessed = require('blessed');
-const _ = require('lodash');
+const screen = blessed.screen({
+  smartCSR: true,
+  log: '/Users/fcoury/logs/jv.log',
+});
+screen.key(['q', 'C-c'], function(_ch, _key) {
+  return process.exit(0);
+});
 
-const { readLog } = require('./log');
-const { Browser } = require('./browser');
+const MainPanel = require('./widgets/MainPanel');
 
-const displayLog = (logFile) => {
-  const screen = blessed.screen({ smartCSR: true });
-
-  new Browser(screen, readLog(logFile));
-
-  screen.key(['q', 'C-c'], function(_ch, _key) {
-    return process.exit(0);
-  });
-
-  screen.render();
-};
-
-displayLog(process.argv[2]);
+const main = new MainPanel({ screen });
+main.loadFile(process.argv[2]);
+// main.setCurrent();

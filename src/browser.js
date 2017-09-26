@@ -23,7 +23,7 @@ const formatEntry = (key, val, padding=undefined, level=0) => {
     ? formatObject(val, level + 1)
     : fmtVal(val);
   return `${fmtKey(key, padding)}${value}`;
-}
+};
 
 const formatObject = (obj, level=0) => {
   const padding = Math.max(...Object.keys(obj).map(k => k.length));
@@ -37,10 +37,23 @@ class Browser {
   constructor(screen, rawData, _blessed=require('blessed'), Table=require('./widgets/table')) {
     this.blessed = _blessed;
     this.screen = screen;
-    this.rawData = rawData;
+    this.rawData = rawData.reverse();
     this.jsonMode = false;
 
-    const def = this.parseData(rawData);
+    const def = this.parseData();
+    const prompt = blessed.prompt({
+      parent: screen,
+      top: 'center',
+      left: 'center',
+      height: 'shrink',
+      width: 'shrink',
+      keys: true,
+      vi: true,
+      mouse: true,
+      tags: true,
+      border: 'line',
+      hidden: true,
+    });
 
     const table = Table({
       keys: true,
@@ -54,6 +67,13 @@ class Browser {
       border: { type: 'line', fg: 'cyan' },
       columnSpacing: 3,
       columnWidth: def.columnWidth,
+      vi: true,
+      search: function(callback) {
+        prompt.input('Search:', '', function(err, value) {
+          if (err) return;
+          return callback(null, value);
+        });
+      },
     });
 
     table.setData({ headers: def.headers, data: def.data });
@@ -100,6 +120,7 @@ class Browser {
       scrollable: true,
       keys: true,
       alwaysScroll: true,
+      scrollbar: { ch: '|' },
     });
     box.focus();
     box.on('keypress', (ch, key) => {
@@ -138,14 +159,14 @@ class Browser {
     ];
   };
 
-  parseData(rawData) {
+  parseData() {
     const headers = ['Timestamp', 'Level', 'Message'];
-    const data = rawData.map(this.formatRow);
+    const data = this.rawData.map(this.formatRow);
     const columnWidth = data.reduce((arr, value) => {
       return arr.map((v, index) => Math.max(value[index].length, v));
     }, [0, 0, 0]);
 
-    return { columnWidth, headers, data: this.fixLevels(data).reverse(), rawData };
+    return { columnWidth, headers, data: this.fixLevels(data), rawData: this.rawData };
   };
 }
 
