@@ -6,7 +6,7 @@ require('./polyfills');
 
 const screen = blessed.screen({
   smartCSR: true,
-  log: '/Users/fcoury/logs/jv.log',
+  log: process.argv.length > 2 && process.argv[3],
 });
 screen.key(['q', 'C-c'], function(_ch, _key) {
   return process.exit(0);
