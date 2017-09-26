@@ -1,0 +1,53 @@
+{
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "forOf": true,
+        "jsx": true,
+        "es6": true,
+        "experimentalObjectRestSpread" : true
+      }
+    },
+    "env": {
+      "browser": true,
+      "es6": true,
+      "mocha": true
+    },
+    "rules": {
+      "camelcase": [2, { "properties": "never" }],
+      "comma-dangle": [2, "always-multiline"],
+      "eqeqeq": 2, // requires === and !===
+      "jsx-quotes": [2, "prefer-double"],
+      "quotes": [2, "single", { "allowTemplateLiterals": true }],
+      "no-eval": 2,
+      "no-irregular-whitespace": 2,
+      "no-trailing-spaces": 2,
+      "no-unsafe-finally": 2,
+      "no-console": 2,
+      "no-const-assign": 2,
+      "prefer-const": 2,
+      "no-undef": 2,
+      "no-unused-vars": [2, { "argsIgnorePattern": "^_", "varsIgnorePattern": "(^_|React)" } ],
+      "semi": [2, "always"],
+      "eol-last": 1,
+      "mocha/no-exclusive-tests": "error"
+    },
+    "plugins": [
+      "import",
+      "mocha"
+    ],
+    "globals": {
+      "__DEVSERVER__": true,
+      "__DEVCLIENT__": true,
+      "Buffer": true,
+      "process": true,
+      "global": true,
+      "expect": true,
+      "module": true,
+      "require": true,
+      "describe": true,
+      "sinon": true,
+      "logger": true
+    }
+}

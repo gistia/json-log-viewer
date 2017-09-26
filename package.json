@@ -1,0 +1,43 @@
+{
+  "name": "jv",
+  "version": "0.1.0",
+  "description": "JSON Log Viewer",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node --presets es2015,stage-2 -- src/index.js",
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --compilers js:babel-core/register --timeout 5000 --require test/support/test-helper.js test/*.test.js test/**/*.test.js",
+    "test:watch": "NODE_ENV=test ./node_modules/.bin/mocha --watch --compilers js:babel-core/register --timeout 5000 --require test/support/test-helper.js test/*.test.js test/**/*.test.js"
+  },
+  "author": "Felipe Coury",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.5",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "chai": "3.5.0",
+    "chai-as-promised": "7.0.0",
+    "eslint": "3.16.0",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-mocha": "^4.11.0",
+    "istanbul": "0.4.5",
+    "karma": "1.5.0",
+    "karma-chai": "0.1.0",
+    "karma-mocha": "1.3.0",
+    "karma-sinon": "1.0.5",
+    "mocha": "https://github.com/gistia/mocha.git",
+    "mocha-istanbul": "0.3.0",
+    "nodemon": "1.11.0",
+    "sinon": "2.3.5",
+    "sinon-chai": "2.11.0",
+    "timekeeper": "1.0.0"
+  }
+}
