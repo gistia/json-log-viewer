@@ -11,7 +11,7 @@ const displayLog = (logFile) => {
 
   new Browser(screen, readLog(logFile));
 
-  screen.key(['escape', 'q', 'C-c'], function(_ch, _key) {
+  screen.key(['q', 'C-c'], function(_ch, _key) {
     return process.exit(0);
   });
 

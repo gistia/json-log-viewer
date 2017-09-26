@@ -3,10 +3,6 @@
   "version": "0.1.0",
   "description": "JSON Log Viewer",
   "main": "src/index.js",
-  "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha --timeout 5000 --require test/support/test-helper.js test/*.test.js test/**/*.test.js",
-    "test:watch": "NODE_ENV=test ./node_modules/.bin/mocha --watch --timeout 5000 --require test/support/test-helper.js test/*.test.js test/**/*.test.js"
-  },
   "author": "Felipe Coury",
   "license": "MIT",
   "engines": {
@@ -37,5 +33,10 @@
     "sinon": "2.3.5",
     "sinon-chai": "2.11.0",
     "timekeeper": "1.0.0"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/eslint --ext .js src test",
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --timeout 5000 --require test/support/test-helper.js test/*.test.js test/**/*.test.js",
+    "test:watch": "NODE_ENV=test ./node_modules/.bin/mocha --watch --timeout 5000 --require test/support/test-helper.js test/*.test.js test/**/*.test.js"
   }
 }

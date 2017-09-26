@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const { parseFixture } = require('./support/fixtures');
-const { Browser } = require('../src/browser');
+const { Browser, formatEntry } = require('../src/browser');
 
 describe('formatData', () => {
   let tableData, tableDef;
@@ -11,16 +11,14 @@ describe('formatData', () => {
     const contents = parseFixture('workflow-engine.log.2017-09-25');
     const screen = { append: noop };
     const blessed = { parseTags: s => s };
-    const contrib = {
-      table: def => {
-        tableDef = def;
-        return {
-          setData: data => tableData = data,
-          focus: noop,
-        };
-      },
+    const table = def => {
+      tableDef = def;
+      return {
+        setData: data => tableData = data,
+        focus: noop,
+      };
     };
-    new Browser(screen, contents, blessed, contrib);
+    new Browser(screen, contents, blessed, table);
   });
 
   describe('headers', () => {
@@ -60,5 +58,18 @@ describe('formatData', () => {
     it('extracts message', () => {
       expect(data[2]).to.eql('Updated instance \'hemo\' with attributes');
     });
+  });
+});
+
+describe.only('formatEntry', () => {
+  it('formats simple values', () => {
+    expect(formatEntry('Name', 'felipe')).to.eql('{blue-fg}{bold}Name:{/bold}{/blue-fg} felipe');
+  });
+
+  it('formats objects', () => {
+    const expected = `{blue-fg}{bold}Data:{/bold}{/blue-fg}
+  {blue-fg}{bold}name:{/bold}{/blue-fg} felipe
+  {blue-fg}{bold} age:{/bold}{/blue-fg} 12`;
+    expect(formatEntry('Data', { name: 'felipe', age: 12 })).to.eql(expected);
   });
 });
