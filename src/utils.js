@@ -77,4 +77,11 @@ const trunc = (text, length) => {
   return `${output}{/}`;
 };
 
-module.exports = { formatRows, maxLengths, hasColors, stripColors, spaces, padEnd, len, trunc };
+const levelColors = {
+  debug: s => `{cyan-fg}${s}{/cyan-fg}`,
+  info: s => `{#ffff94-fg}{bold}${s}{/bold}{/#ffff94-fg}`,
+  warn: s => `{orange-fg}${s}{/orange-fg}`,
+  error: s => `{red-fg}${s}{/red-fg}`,
+};
+
+module.exports = { formatRows, maxLengths, hasColors, stripColors, spaces, padEnd, len, trunc, levelColors };

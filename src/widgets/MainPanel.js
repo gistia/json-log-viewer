@@ -1,46 +1,14 @@
 const blessed = require('blessed');
+
 const { readLog } = require('../log');
-const { formatRows, padEnd, trunc } = require('../utils');
+const { formatRows, padEnd, trunc, levelColors } = require('../utils');
 
-const levelColors = {
-  debug: s => `{cyan-fg}${s}{/cyan-fg}`,
-  info: s => `{#ffff94-fg}{bold}${s}{/bold}{/#ffff94-fg}`,
-  warn: s => `{orange-fg}${s}{/orange-fg}`,
-  error: s => `{red-fg}${s}{/red-fg}`,
-};
-
-
-class BaseWidget extends blessed.Box {
-  constructor(opts) {
-    super(opts);
-    this.screen = opts.screen;
-    this.screen.append(this);
-  }
-
-  log(...s) {
-    this.screen.log(...s);
-  }
-
-  setCurrent() {
-    this.focus();
-    this.screen.render();
-    return this;
-  }
-}
+const BaseWidget = require('./BaseWidget');
+const LogDetails = require('./LogDetails');
 
 class MainPanel extends BaseWidget {
   constructor(opts={}) {
-    super(Object.assign({}, {
-      top: 'center',
-      left: 'center',
-      width: '100%',
-      height: '100%',
-      content: '',
-      tags: true,
-      border: { type: 'line' },
-      interactive: true,
-      padding: { left: 1, right: 1 },
-    }, opts));
+    super(Object.assign({}, { handleKeys: true }, opts));
 
     this.currentPage = opts.currentPage || 1;
     this.initialRow = opts.initialRow || 0;
@@ -50,7 +18,6 @@ class MainPanel extends BaseWidget {
     this.rows = [];
     this.pageHeight = this.height;
     this.pageWidth = this.width - 2 - 2;
-    this.on('keypress', this.handleKeyPress.bind(this));
     this.log('pageWidth', this.pageWidth);
     this.update();
   }
@@ -80,6 +47,15 @@ class MainPanel extends BaseWidget {
       this.update();
       return;
     }
+    if (key.name === 'enter') {
+      this.displayDetails();
+      return;
+    }
+  }
+
+  displayDetails() {
+    const details = new LogDetails({ screen: this.screen });
+    details.display(this.rows[this.row]);
   }
 
   update() {
