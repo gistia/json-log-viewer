@@ -1,8 +1,8 @@
-import blessed from 'blessed';
-import contrib from 'blessed-contrib';
-import _ from 'lodash';
+const blessed = require('blessed');
+const contrib = require('blessed-contrib');
+const _ = require('lodash');
 
-export const newBrowser = (rawData) => {
+const newBrowser = (rawData) => {
   const def = parseData(rawData);
 
   const table = contrib.table({
@@ -43,7 +43,7 @@ const formatRow = (row) => {
   ];
 };
 
-export const parseData = (rawData) => {
+const parseData = (rawData) => {
   const headers = ['Timestamp', 'Level', 'Message'];
   const data = rawData.map(formatRow);
   const columnWidth = data.reduce((arr, value) => {
@@ -52,3 +52,5 @@ export const parseData = (rawData) => {
 
   return { columnWidth, headers, data: fixLevels(data), rawData };
 };
+
+module.exports = { newBrowser, parseData };

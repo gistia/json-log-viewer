@@ -1,6 +1,5 @@
-import { parseFixture } from './support/fixtures';
-
-import { parseData } from '../src/browser';
+const { parseFixture } = require('./support/fixtures');
+const { parseData } = require('../src/browser');
 
 describe('formatData', () => {
   let tableDef, data;

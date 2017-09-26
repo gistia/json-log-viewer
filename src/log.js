@@ -1,7 +1,7 @@
-import fs from 'fs';
-import _ from 'lodash';
+const fs = require('fs');
+const _ = require('lodash');
 
-export function readLog(file, reader=fs) {
+function readLog(file, reader=fs) {
   const contents = reader.readFileSync(file).toString();
   const lines = contents.split('\n').filter(line => line).map(line => JSON.parse(line));
 
@@ -11,3 +11,5 @@ export function readLog(file, reader=fs) {
     return Object.assign({}, result, { data });
   });
 };
+
+module.exports = { readLog };

@@ -1,12 +1,14 @@
-import fs from 'fs';
-import { readLog } from '../../src/log';
+const fs = require('fs');
+const { readLog } = require('../../src/log');
 
-export const loadFixture = (name) => {
+const loadFixture = (name) => {
   return fs.readFileSync(`./test/fixtures/${name}`).toString();
 };
 
-export const parseFixture = (name) => {
+const parseFixture = (name) => {
   const contents = loadFixture(name);
   const stubFS = { readFileSync: () => contents };
   return readLog('', stubFS);
 };
+
+module.exports = { loadFixture, parseFixture };

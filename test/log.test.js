@@ -1,5 +1,5 @@
-import { loadFixture } from './support/fixtures';
-import { readLog } from '../src/log';
+const { loadFixture } = require('./support/fixtures');
+const { readLog } = require('../src/log');
 
 describe('readLog', () => {
   let entries;

@@ -1,17 +1,21 @@
-import blessed from 'blessed';
-import _ from 'lodash';
+const blessed = require('blessed');
+const _ = require('lodash');
 
-import { readLog } from './log';
-import { newBrowser } from './browser';
+const { readLog } = require('./log');
+const { newBrowser } = require('./browser');
 
-const screen = blessed.screen({ smartCSR: true });
+const displayLog = (logFile) => {
+  const screen = blessed.screen({ smartCSR: true });
 
-const browser = newBrowser(readLog('/Users/fcoury/code/workflow-engine/logs/workflow-engine.log.2017-09-25'));
-browser.focus();
+  const browser = newBrowser(readLog(logFile));
+  browser.focus();
 
-screen.append(browser);
-screen.key(['escape', 'q', 'C-c'], function(_ch, _key) {
-  return process.exit(0);
-});
+  screen.append(browser);
+  screen.key(['escape', 'q', 'C-c'], function(_ch, _key) {
+    return process.exit(0);
+  });
 
-screen.render();
+  screen.render();
+};
+
+displayLog(process.argv[2]);
