@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('./polyfills');
+
 const blessed = require('blessed');
 const _ = require('lodash');
 
