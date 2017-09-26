@@ -1,28 +1,4 @@
-const blessed = require('blessed');
-const contrib = require('blessed-contrib');
 const _ = require('lodash');
-
-const newBrowser = (rawData) => {
-  const def = parseData(rawData);
-
-  const table = contrib.table({
-    keys: true,
-    fg: 'white',
-    selectedFg: 'white',
-    selectedBg: 'blue',
-    interactive: true,
-    label: 'Logs',
-    width: '100%',
-    height: '100%',
-    border: { type: 'line', fg: 'cyan' },
-    columnSpacing: 3,
-    columnWidth: def.columnWidth,
-  });
-
-  table.setData({ headers: def.headers, data: def.data });
-
-  return table;
-};
 
 const levelColors = {
   debug: s => `{cyan-fg}${s}{/cyan-fg}`,
@@ -31,26 +7,59 @@ const levelColors = {
   error: s => `{red-fg}${s}{/red-fg}`,
 };
 
-const formatLevel = (level) => blessed.parseTags(levelColors[level](level));
 
-const fixLevels = (data) => data.map(d => [d[0], formatLevel(d[1]), d[2]]);
+class Browser {
+  constructor(screen, rawData, _blessed=require('blessed'), _contrib=require('blessed-contrib')) {
+    this.blessed = _blessed;
+    this.contrib = _contrib;
 
-const formatRow = (row) => {
-  return [
-    row.timestamp,
-    row.level,
-    row.message,
-  ];
-};
+    const def = this.parseData(rawData);
 
-const parseData = (rawData) => {
-  const headers = ['Timestamp', 'Level', 'Message'];
-  const data = rawData.map(formatRow);
-  const columnWidth = data.reduce((arr, value) => {
-    return arr.map((v, index) => Math.max(value[index].length, v));
-  }, [0, 0, 0]);
+    const table = this.contrib.table({
+      keys: true,
+      fg: 'white',
+      selectedFg: 'white',
+      selectedBg: 'blue',
+      interactive: true,
+      label: 'Logs',
+      width: '100%',
+      height: '100%',
+      border: { type: 'line', fg: 'cyan' },
+      columnSpacing: 3,
+      columnWidth: def.columnWidth,
+    });
 
-  return { columnWidth, headers, data: fixLevels(data), rawData };
-};
+    table.setData({ headers: def.headers, data: def.data });
+    table.focus();
 
-module.exports = { newBrowser, parseData };
+    screen.append(table);
+  }
+
+  formatLevel(level) {
+    return this.blessed.parseTags(levelColors[level](level));
+  }
+
+  fixLevels(data) {
+    return data.map(d => [d[0], this.formatLevel(d[1]), d[2]]);
+  }
+
+  formatRow(row) {
+    return [
+      row.timestamp,
+      row.level,
+      row.message,
+    ];
+  };
+
+  parseData(rawData) {
+    const headers = ['Timestamp', 'Level', 'Message'];
+    const data = rawData.map(this.formatRow);
+    const columnWidth = data.reduce((arr, value) => {
+      return arr.map((v, index) => Math.max(value[index].length, v));
+    }, [0, 0, 0]);
+
+    return { columnWidth, headers, data: this.fixLevels(data).reverse(), rawData };
+  };
+}
+
+module.exports = { Browser };

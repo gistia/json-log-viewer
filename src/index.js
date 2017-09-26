@@ -4,15 +4,13 @@ const blessed = require('blessed');
 const _ = require('lodash');
 
 const { readLog } = require('./log');
-const { newBrowser } = require('./browser');
+const { Browser } = require('./browser');
 
 const displayLog = (logFile) => {
   const screen = blessed.screen({ smartCSR: true });
 
-  const browser = newBrowser(readLog(logFile));
-  browser.focus();
+  new Browser(screen, readLog(logFile));
 
-  screen.append(browser);
   screen.key(['escape', 'q', 'C-c'], function(_ch, _key) {
     return process.exit(0);
   });

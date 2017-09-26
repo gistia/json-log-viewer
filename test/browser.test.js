@@ -1,18 +1,31 @@
+const _ = require('lodash');
+
 const { parseFixture } = require('./support/fixtures');
-const { parseData } = require('../src/browser');
+const { Browser } = require('../src/browser');
 
 describe('formatData', () => {
-  let tableDef, data;
+  let tableData, tableDef;
 
   before(() => {
+    const noop = _ => _;
     const contents = parseFixture('workflow-engine.log.2017-09-25');
-    tableDef = parseData(contents);
-    data = tableDef.data;
+    const screen = { append: noop };
+    const blessed = { parseTags: s => s };
+    const contrib = {
+      table: def => {
+        tableDef = def;
+        return {
+          setData: data => tableData = data,
+          focus: noop,
+        };
+      },
+    };
+    new Browser(screen, contents, blessed, contrib);
   });
 
   describe('headers', () => {
     it('is set', () => {
-      expect(tableDef.headers).to.eql(['Timestamp', 'Level', 'Message']);
+      expect(tableData.headers).to.eql(['Timestamp', 'Level', 'Message']);
     });
   });
 
@@ -26,26 +39,26 @@ describe('formatData', () => {
   });
 
   describe('data', () => {
+    let data;
+
+    beforeEach(() => {
+      data = _.last(tableData.data);
+    });
+
     it('has only 3 columns', () => {
-      expect(data[0].length).to.eql(3);
+      expect(data.length).to.eql(3);
     });
 
     it('extracts timestamp', () => {
-      expect(data[0][0]).to.eql('2017-09-25T22:48:38.035Z');
+      expect(data[0]).to.eql('2017-09-25T22:48:38.035Z');
     });
 
     it('extracts level', () => {
-      expect(data[0][1]).to.eql('{cyan-fg}debug{/cyan-fg}');
+      expect(data[1]).to.eql('{cyan-fg}debug{/cyan-fg}');
     });
 
     it('extracts message', () => {
-      expect(data[0][2]).to.eql('Updated instance \'hemo\' with attributes');
-    });
-  });
-
-  describe('rawData', () => {
-    it('keeps object', () => {
-      expect(tableDef.rawData[0].data.to.currentState).to.eql('resultPending');
+      expect(data[2]).to.eql('Updated instance \'hemo\' with attributes');
     });
   });
 });
