@@ -1,57 +1,65 @@
 const _ = require('lodash');
 
-const COLOR_TAG_REGEX = /{\/?[\w\-,;!#]*}/g;
+const COLOR_TAG_REGEX = /{\/?[\w\-,;!#]+}/g;
 
-const formatRows = (rows, columns, spacing=1) => {
-  const lengths = maxLengths(rows);
+const formatRows = (rows, columns, spacing=1, maxWidth) => {
+  const lengths = maxLengths(columns, rows, spacing, maxWidth);
   return rows.map(row => {
     return columns.map(column => {
       const { format, key } = column;
       const rawValue = row[key];
       const value = _.isFunction(format) ? format(rawValue) : rawValue;
 
-      return padEnd(value, lengths[column.key]);
+      return padEnd(value, lengths[key], !format);
     }).join(spaces(spacing));
   });
 };
 
-const maxLengths = (arr) => {
-  return arr.reduce((map, row) => {
-    Object.keys(row).forEach(k => {
-      map[k] = Math.max(map[k] || 0, len(row[k].toString()));
+const maxLengths = (columns, arr, spacing, maxWidth) => {
+  const lengths = arr.reduce((map, row) => {
+    columns.slice(0, -1).forEach(col => {
+      const val = row[col.key] || '';
+      map[col.key] = Math.max(map[col.key] || 0, len(val.toString()));
     });
     return map;
   }, {});
+  const lastCol = _.last(columns);
+  const width = _.chain(lengths).values().sum().value() + (spacing * Object.keys(lengths).length);
+  lengths[lastCol.key] = maxWidth - width;
+  return lengths;
 };
 
 const hasColors = (text) => {
-  return text.match(COLOR_TAG_REGEX);
+  return COLOR_TAG_REGEX.test(text);
 };
 
 const stripColors = (text) => {
-  return (text || '').replace(COLOR_TAG_REGEX, '');
+  return (text || '').replace(COLOR_TAG_REGEX, '').replace(/\{\/}/g, '');
 };
 
-const len = (text) => {
+const len = (text, ignoreColors=false) => {
+  if (ignoreColors) {
+    return text.length;
+  }
   return stripColors(text).length;
 };
 
 const spaces = (n) => new Array(n+1).join(' ');
 
-const padEnd = (text, length) => {
-  const nSpaces = length - len(text);
+const padEnd = (text, length, ignoreColors=false) => {
+  const nSpaces = length - len(text, ignoreColors);
   if (nSpaces < 0) {
-    return trunc(text, length);
+    return trunc(text, length, ignoreColors);
   }
   return `${text}${spaces(nSpaces)}`;
 };
 
-const trunc = (text, length) => {
+const trunc = (text, length, ignoreColors=false) => {
   if (!text) { return ''; }
-  if (!hasColors(text)) {
+  if (ignoreColors || !hasColors(text)) {
     return text.substring(0, length);
   }
-  if (len(text) <= length) {
+  if (len(text, ignoreColors) <= length) {
     return text;
   }
 

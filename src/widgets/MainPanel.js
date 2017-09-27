@@ -1,7 +1,7 @@
 const blessed = require('blessed');
 
 const { readLog } = require('../log');
-const { formatRows, padEnd, trunc, levelColors } = require('../utils');
+const { formatRows, levelColors } = require('../utils');
 
 const BaseWidget = require('./BaseWidget');
 const LogDetails = require('./LogDetails');
@@ -65,19 +65,16 @@ class MainPanel extends BaseWidget {
       { title: 'Message', key: 'message' },
     ];
 
-    const wrap = (str) => this.wrap
-        ? padEnd(trunc(str.split('\n')[0], this.pageWidth-1), this.pageWidth-1)
-        : str;
-
     const formatRow = (row, index) => {
-      const str = wrap(row, this.pageWidth-1);
+      const str = row.split('\n')[0];
       if (index === this.row) {
         return `{white-bg}{black-fg}${str}{/}`;
       }
       return str;
     };
 
-    const content = formatRows(this.rows, columns, this.colSpacing).map(formatRow).join('\n');
+    const content = formatRows(
+      this.rows, columns, this.colSpacing, this.pageWidth-1).map(formatRow).join('\n');
     const list = blessed.element({ tags: true, content });
     this.append(list);
     this.screen.render();
