@@ -25,7 +25,7 @@ class MainPanel extends BaseWidget {
   }
 
   loadFile(file) {
-    this.setLabel(`{bold} ${file} {/}`);
+    this.file = file;
     this.lines = readLog(file);
     this.lastRow = this.lines.length - 1;
     this.log(this.lines.length);
@@ -225,6 +225,8 @@ class MainPanel extends BaseWidget {
   }
 
   update() {
+    this.setLabel(`[{bold} ${this.file} {/}] [{bold} ${this.row+1}/${this.lastRow} {/}]`);
+
     const columns = [
       { title: 'Timestap', key: 'timestamp' },
       { title: 'Level', key: 'level', format: v => levelColors[v](v) },

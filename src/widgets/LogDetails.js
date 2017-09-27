@@ -31,7 +31,7 @@ const formatObject = (obj, level=0) => {
 class LogDetails extends BaseWidget {
   constructor(opts={}) {
     super(Object.assign({}, opts, {
-      width: '80%',
+      width: '90%',
       height: '80%',
       shadow: true,
       handleKeys: true,
