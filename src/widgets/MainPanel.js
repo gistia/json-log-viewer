@@ -127,11 +127,11 @@ class MainPanel extends BaseWidget {
       return;
     }
     if (ch === '/') {
-      this.openSearch();
+      this.openSearch(true);
       return;
     }
     if (ch === '?') {
-      this.openSearch(true);
+      this.openSearch();
       return;
     }
     if (ch === 'n') {
@@ -151,11 +151,14 @@ class MainPanel extends BaseWidget {
       return;
     }
     if (ch === 'f') {
+      if (this.filters.length) {
+        return this.clearFilters();
+      }
       this.openFilter();
       return;
     }
-    if (ch === 'r') {
-      this.clearFilters();
+    if (ch === 'q') {
+      process.exit(0);
       return;
     }
   }
@@ -163,7 +166,9 @@ class MainPanel extends BaseWidget {
   openLevelFilter() {
     const levels = ['all', 'debug', 'info', 'warn', 'error'];
     this.openPicker('Log Level', levels, (err, level) => {
+      if (!level) { return; }
       if (err) { return; }
+
       this.log('selected', level);
       if (level === 'all') {
         return this.clearFilters();
@@ -182,6 +187,7 @@ class MainPanel extends BaseWidget {
 
   openSort() {
     this.openPicker('Sort by', FIELDS, (err, sort) => {
+      if (!sort) { return; }
       if (err) { return; }
       if (this.sortKey === sort && this.sortAsc) {
         return this.setSort(`-${sort}`);
@@ -193,6 +199,7 @@ class MainPanel extends BaseWidget {
   openFilter() {
     const fields = ['timestamp', 'level', 'message', 'other'];
     this.openPicker('Filter by', fields, (err, field) => {
+      if (!field) { return; }
       if (err) { return; }
       if (field === 'other') {
         return this.openCustomFilter();
@@ -203,6 +210,7 @@ class MainPanel extends BaseWidget {
 
   openCustomFilter() {
     this.prompt(`Field to filter:`, '', (field) => {
+      if (!field) { return; }
       if (field.indexOf(':') > -1) {
         return this.setFilter(field.split(':')[0], field.split(':')[1], 'contains');
       }
@@ -212,6 +220,7 @@ class MainPanel extends BaseWidget {
 
   openFilterTerm(field) {
     this.prompt(`Filter ${field} by:`, '', (value) => {
+      if (!value) { return; }
       this.setFilter(field, value, 'contains');
     });
   }

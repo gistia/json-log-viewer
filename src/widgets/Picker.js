@@ -67,13 +67,17 @@ class Picker extends BaseWidget {
     this.emit('select', null, value);
   }
 
-  handleKeyPressed(ch, _key) {
+  handleKeyPressed(ch, key) {
     if (this.keySelect && /[a-z]/.test(ch)) {
       const item = this.items.find(i => i.startsWith(ch));
       if (item) {
         this.log('item', item);
         this.selected(item);
       }
+    }
+
+    if (key.name === 'escape') {
+      this.selected(null);
     }
   }
 
