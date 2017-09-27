@@ -102,7 +102,11 @@ class MainPanel extends BaseWidget {
 
   displayDetails() {
     const details = new LogDetails({ screen: this.screen });
-    details.display(this.rows[this.row]);
+    details.display(this.rows[this.relativeRow]);
+  }
+
+  get relativeRow() {
+    return this.row - this.initialRow;
   }
 
   update() {
@@ -114,8 +118,7 @@ class MainPanel extends BaseWidget {
 
     const highlight = (row, index) => {
       const str = row.split('\n')[0];
-      const relativeRow = this.row - this.initialRow;
-      if (index === relativeRow) {
+      if (index === this.relativeRow) {
         return `{white-bg}{black-fg}${str}{/}`;
       }
       return str;
