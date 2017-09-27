@@ -18,6 +18,8 @@ class MainPanel extends BaseWidget {
     this.rows = [];
     this.pageHeight = this.height - 3;
     this.pageWidth = this.width - 2 - 2;
+    this.lastSearchTerm = null;
+
     this.log('pageWidth', this.pageWidth);
     this.update();
   }
@@ -70,6 +72,81 @@ class MainPanel extends BaseWidget {
       this.lastPage();
       return;
     }
+    if (ch === '/') {
+      this.openSearch();
+      return;
+    }
+    if (ch === 'n') {
+      this.search();
+      return;
+    }
+  }
+
+  openSearch() {
+    const prompt = blessed.prompt({
+      parent: this,
+      border: 'line',
+      height: 'shrink',
+      width: 'half',
+      top: 'center',
+      left: 'center',
+      label: ' {blue-fg}Prompt{/blue-fg} ',
+      tags: true,
+      keys: true,
+      vi: true,
+    });
+    prompt.input('Search:', '', (err, value) => {
+      if (err) { return; }
+      this.search(value);
+    });
+  }
+
+  searchTerm(term, caseSensitive, startRow) {
+    const searchTerm = caseSensitive ? term : term.toLowerCase();
+    return this.lines.findIndex((json, index) => {
+      if (index < startRow) {
+        return false;
+      }
+      const match = caseSensitive
+        ? `${json.timestamp} ${json.message}`
+        : `${json.timestamp} ${json.message}`.toLowerCase();
+      return match.indexOf(searchTerm) > -1;
+    });
+  }
+
+  message(str) {
+    var msg = blessed.message({
+      parent: this,
+      border: 'line',
+      height: 'shrink',
+      width: 'half',
+      top: 'center',
+      left: 'center',
+      label: ' {blue-fg}Message{/blue-fg} ',
+      tags: true,
+      keys: true,
+      hidden: true,
+      vi: true,
+    });
+
+    msg.display(str);
+  }
+
+  search(term=this.lastSearchTerm) {
+    if (!term) {
+      return this.message('No previous search');
+    }
+    this.lastSearchTerm = term;
+    const pos = this.searchTerm(term, false, this.row+1);
+    if (pos > -1) {
+      this.moveToLine(pos);
+    }
+  }
+
+  moveToLine(num) {
+    this.row = num;
+    this.initialRow = num;
+    this.renderLines();
   }
 
   moveUp() {
