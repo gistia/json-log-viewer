@@ -13,7 +13,7 @@ class BaseWidget extends blessed.Box {
       padding: { left: 1, right: 1 },
     }, opts));
 
-    if (opts.handleKeys) {
+    if (opts.handleKeys && this.handleKeyPress) {
       this.on('keypress', this.handleKeyPress.bind(this));
     }
 
