@@ -12,7 +12,7 @@ const fmtKey = (rawKey, padding=undefined) => {
   const key = padding
     ? `${rawKey}:`.padEnd(padding+1)
     : `${rawKey}:`;
-  return `{blue-fg}{bold}${key}{/bold}{/blue-fg}`
+  return `{blue-fg}{bold}${key}{/bold}{/blue-fg}`;
 };
 const fmtVal = (val) => ` ${val}`;
 
