@@ -27,6 +27,7 @@ screen.key(['C-c'], function(_ch, _key) {
 const level = opts.l || opts.level;
 const sort = opts.s || opts.sort;
 const args = { screen, level, sort };
+
 const mainPanel = new MainPanel(args);
 mainPanel.loadFile(logFile);
 
@@ -35,3 +36,7 @@ screen.append(statusLine);
 mainPanel.setCurrent();
 
 screen.render();
+
+process.on('SIGWINCH', function() {
+  screen.emit('resize');
+});

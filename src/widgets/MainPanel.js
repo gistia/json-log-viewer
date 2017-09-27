@@ -20,16 +20,27 @@ class MainPanel extends BaseWidget {
     this.wrap = opts.wrap || true;
     this.row = 0;
     this.rows = [];
-    this.pageHeight = this.height - 3;
-    this.pageWidth = this.width - 2 - 2;
     this.lastSearchTerm = null;
     this.levelFilter = opts.level;
     this.filters = [];
     this.sort = opts.sort || '-timestamp';
     this.mode = 'normal';
 
+    this.calculateBoundaries();
+
     this.log('pageWidth', this.pageWidth);
-    this.update();
+    this.on('resize', () => {
+      this.calculateBoundaries();
+      this.screen.render();
+      this.renderLines();
+      this.fixCursor();
+    });
+    this.renderLines();
+  }
+
+  calculateBoundaries() {
+    this.pageHeight = this.height - 3;
+    this.pageWidth = this.width - 2 - 2;
   }
 
   loadFile(file) {
@@ -76,11 +87,12 @@ class MainPanel extends BaseWidget {
         const key = FIELDS.indexOf(filter.key) > -1
           ? filter.key : `data.${filter.key}`;
         const value = _.get(line, key);
+        if (!value) { return false; }
         if (!filter.method) {
           return value && value === filter.value;
         }
         if (filter.method === 'contains') {
-          return value && value.toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+          return value && value.toString().toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
         }
       }, true);
     }));
@@ -161,6 +173,14 @@ class MainPanel extends BaseWidget {
     }
     if (ch === 'q') {
       process.exit(0);
+      return;
+    }
+    if (ch === 'B') {
+      this.moveToFirstViewportLine();
+      return;
+    }
+    if (ch === 'G') {
+      this.moveToLastViewportLine();
       return;
     }
   }
@@ -366,6 +386,26 @@ class MainPanel extends BaseWidget {
     this.renderLines();
   }
 
+  isOutsideViewPort() {
+    return this.row > this.initialRow + this.pageHeight;
+  }
+
+  fixCursor() {
+    if (this.isOutsideViewPort()) {
+      this.moveToLastViewportLine();
+    }
+  }
+
+  moveToFirstViewportLine() {
+    this.row = this.initialRow;
+    this.renderLines();
+  }
+
+  moveToLastViewportLine() {
+    this.row = this.initialRow + this.pageHeight;
+    this.renderLines();
+  }
+
   moveUp() {
     this.row = Math.max(0, this.row - 1);
     if (this.row < this.initialRow) {
@@ -395,14 +435,16 @@ class MainPanel extends BaseWidget {
   }
 
   pageDown() {
-    this.row = Math.min(this.lastRow, this.row + this.pageHeight);
-    this.initialRow = this.row;
+    const relativeRow = this.relativeRow;
+    this.initialRow = Math.min(this.lastRow, this.row + this.pageHeight);
+    this.row = Math.min(this.lastRow, this.initialRow + relativeRow);
     this.renderLines();
   }
 
   pageUp() {
-    this.row = Math.max(0, this.row - this.pageHeight);
-    this.initialRow = this.row;
+    const relativeRow = this.relativeRow;
+    this.initialRow = Math.max(0, this.row - this.pageHeight);
+    this.row = this.initialRow + relativeRow;
     this.renderLines();
   }
 

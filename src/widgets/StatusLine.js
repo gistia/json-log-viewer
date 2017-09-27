@@ -1,8 +1,6 @@
 const blessed = require('blessed');
 const _ = require('lodash');
 
-const BaseWidget = require('./BaseWidget');
-
 class StatusLine extends blessed.Box {
   constructor(opts={}) {
     super(Object.assign({}, {
@@ -19,6 +17,10 @@ class StatusLine extends blessed.Box {
 
     this.mainPanel = opts.mainPanel;
     this.mainPanel.on('update', this.update.bind(this));
+    this.on('resize', () => {
+      this.position.top = opts.screen.height-1;
+      this.update();
+    });
     this.update();
   }
 
