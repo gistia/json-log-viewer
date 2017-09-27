@@ -1,5 +1,7 @@
 # json-log-viewer
 
+[![npm version](https://badge.fury.io/js/json-log-viewer.svg)](https://badge.fury.io/js/json-log-viewer)
+
 > Powerful terminal based viewer for JSON logs using ncurses.
 
 ![screenshot](screenshot.png)
@@ -13,8 +15,6 @@ Features:
 - sort by timestamp, level or message
 - filter by any field or metadata
 - search
-
-[![npm version](https://badge.fury.io/js/json-log-viewer.svg)](https://badge.fury.io/js/json-log-viewer)
 
 ## Install
 

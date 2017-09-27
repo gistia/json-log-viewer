@@ -4,6 +4,7 @@
   "description": "JSON Log Viewer",
   "main": "src/index.js",
   "author": "Felipe Coury",
+  "repository": "https://github.com/gistia/json-log-viewer",
   "license": "MIT",
   "engines": {
     "node": ">=8.0.0"
@@ -12,7 +13,6 @@
     "jv": "./src/index.js"
   },
   "dependencies": {
-    "base-widget": "1.1.0",
     "blessed": "0.1.81",
     "blessed-contrib": "4.8.5",
     "lodash": "4.17.4",
