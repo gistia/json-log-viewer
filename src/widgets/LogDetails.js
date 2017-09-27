@@ -40,7 +40,6 @@ class LogDetails extends BaseWidget {
   }
 
   handleKeyPress(ch, key) {
-    this.log('[LogDetails] key', key.name);
     if (key.name === 'enter' || key.name === 'escape') {
       this.log('detach');
       this.el.detach();

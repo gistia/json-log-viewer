@@ -23,6 +23,7 @@ class MainPanel extends BaseWidget {
     this.lastSearchTerm = null;
     this.levelFilter = opts.level;
     this.filters = [];
+    this.sort = '-timestap';
 
     this.log('pageWidth', this.pageWidth);
     this.update();
@@ -31,7 +32,7 @@ class MainPanel extends BaseWidget {
   loadFile(file) {
     this.file = file;
     this.rawLines = readLog(file);
-    this.log(this.lines.length);
+    this.log('loaded', this.lines.length);
     this.renderLines();
   }
 
@@ -44,22 +45,34 @@ class MainPanel extends BaseWidget {
       return [];
     }
 
+    const sort = (lines) => {
+      this.log('sort', this.sort);
+      if (!this.sort) { return lines; }
+
+      const sorted = _.chain(lines).sortBy(this.sort.replace(/^-/, ''));
+      if (this.sort.startsWith('-')) {
+        return sorted.reverse().value();
+      }
+
+      return sorted.value();
+    };
+
     const filters = _.cloneDeep(this.filters);
     if (this.levelFilter) {
       filters.push({ key: 'level', value: this.levelFilter } );
     }
 
-    this.log('filters', filters);
-
     if (!filters.length) {
-      return this.rawLines;
+      return sort(this.rawLines);
     }
 
-    return this.rawLines.filter(line => {
+    this.log('filters', filters);
+
+    return sort(this.rawLines.filter(line => {
       return filters.reduce((bool, filter) => {
         return line[filter.key] === filter.value;
       }, true);
-    });
+    }));
   }
 
   renderLines() {
@@ -68,7 +81,7 @@ class MainPanel extends BaseWidget {
   }
 
   handleKeyPress(ch, key) {
-    this.log('ch', ch, 'key', key);
+    this.log('key', ch || (key && key.name));
 
     if (key.name === 'down') {
       this.moveDown();
@@ -292,8 +305,6 @@ class MainPanel extends BaseWidget {
   pageUp() {
     this.row = Math.max(0, this.row - this.pageHeight);
     this.initialRow = this.row;
-    this.log('row', this.row);
-    this.log('initialRow', this.initialRow);
     this.renderLines();
   }
 
