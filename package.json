@@ -1,5 +1,5 @@
 {
-  "name": "jv",
+  "name": "json-log-viewer",
   "version": "0.1.0",
   "description": "JSON Log Viewer",
   "main": "src/index.js",
