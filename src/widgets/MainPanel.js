@@ -63,8 +63,9 @@ class MainPanel extends BaseWidget {
       return [];
     }
 
+    this.log('calcLines', this.sort, this.filters, this.levelFilter);
+
     const sort = (lines) => {
-      this.log('sort', this.sort);
       if (!this.sort) { return lines; }
 
       const sorted = _.chain(lines).sortBy(this.sortKey);
@@ -234,7 +235,6 @@ class MainPanel extends BaseWidget {
   }
 
   setMode(mode) {
-    this.log('setmode', mode);
     this.mode = mode;
     this.emit('update');
   }
