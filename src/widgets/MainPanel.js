@@ -25,6 +25,7 @@ class MainPanel extends BaseWidget {
     this.filters = [];
     this.sort = opts.sort || '-timestamp';
     this.mode = 'normal';
+    this.updated = true;
 
     this.log('pageWidth', this.pageWidth);
     this.on('resize', () => {
@@ -50,6 +51,14 @@ class MainPanel extends BaseWidget {
   }
 
   get lines() {
+    if (this.updated) {
+      this.linesCache = this.calcLines();
+      this.updated = false;
+    }
+    return this.linesCache;
+  }
+
+  calcLines() {
     if (!this.rawLines) {
       return [];
     }
@@ -217,6 +226,11 @@ class MainPanel extends BaseWidget {
       }
       this.setSort(sort);
     });
+  }
+
+  setUpdated() {
+    this.updated = true;
+    this.emit('update');
   }
 
   setMode(mode) {
@@ -492,7 +506,7 @@ class MainPanel extends BaseWidget {
     const list = blessed.element({ tags: true, content });
     this.append(list);
     this.screen.render();
-    this.emit('update');
+    this.setUpdated();
   }
 }
 
