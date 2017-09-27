@@ -21,6 +21,7 @@ class MainPanel extends BaseWidget {
     this.pageHeight = this.height - 3;
     this.pageWidth = this.width - 2 - 2;
     this.lastSearchTerm = null;
+    this.levelFilter = null;
     this.filters = [];
 
     this.log('pageWidth', this.pageWidth);
@@ -29,26 +30,36 @@ class MainPanel extends BaseWidget {
 
   loadFile(file) {
     this.file = file;
-    this.lines = readLog(file);
-    this.lastRow = this.lines.length - 1;
+    this.rawLines = readLog(file);
     this.log(this.lines.length);
     this.renderLines();
   }
 
-  get filteredLines() {
-    if (!this.filters.length) {
-      return this.lines;
+  get lastRow() {
+    return (this.lines || []).length - 1;
+  }
+
+  get lines() {
+    const filters = _.cloneDeep(this.filters);
+    if (this.levelFilter) {
+      filters.push({ key: 'level', value: this.levelFilter } );
     }
 
-    return this.lines.filter(line => {
-      return this.filters.reduce((bool, filter) => {
+    this.log('filters', filters);
+
+    if (!filters.length) {
+      return this.rawLines;
+    }
+
+    return this.rawLines.filter(line => {
+      return filters.reduce((bool, filter) => {
         return line[filter.key] === filter.value;
       }, true);
     });
   }
 
   renderLines() {
-    this.rows = this.filteredLines.slice(this.initialRow, this.initialRow + this.height - 2);
+    this.rows = this.lines.slice(this.initialRow, this.initialRow + this.height - 2);
     this.update();
   }
 
@@ -100,8 +111,12 @@ class MainPanel extends BaseWidget {
       this.search();
       return;
     }
-    if (ch === 'f') {
+    if (ch === 'l') {
       this.openLevelFilter();
+      return;
+    }
+    if (ch === 'g') {
+      this.openGoToLine();
       return;
     }
   }
@@ -114,8 +129,13 @@ class MainPanel extends BaseWidget {
       if (level === 'all') {
         return this.clearFilters();
       }
-      this.setFilter('level', level);
+      this.setLevelFilter(level);
     });
+  }
+
+  setLevelFilter(level) {
+    this.levelFilter = level;
+    this.renderLines();
   }
 
   setFilter(key, value) {
@@ -134,10 +154,7 @@ class MainPanel extends BaseWidget {
     picker.setCurrent();
   }
 
-  openSearch(clear=false) {
-    if (clear) {
-      this.lastSearchTerm = null;
-    }
+  prompt(str, value, callback) {
     const prompt = blessed.prompt({
       parent: this,
       border: 'line',
@@ -152,14 +169,25 @@ class MainPanel extends BaseWidget {
       padding: 1,
     });
 
-    prompt.input('Search:', this.lastSearchTerm || '', (err, value) => {
+    prompt.input(str, value || '', (err, value) => {
       if (err) { return; }
       if (value) {
-        this.search(value);
+        callback(value);
       } else {
         this.renderLines();
       }
     });
+  }
+
+  openSearch(clear=false) {
+    if (clear) {
+      this.lastSearchTerm = null;
+    }
+    this.prompt('Search:', this.lastSearchTerm, (value) => this.search(value));
+  }
+
+  openGoToLine() {
+    this.prompt('Line:', '', (value) => this.moveToLine(parseInt(value, 10)-1));
   }
 
   searchTerm(term, caseSensitive, startRow) {
