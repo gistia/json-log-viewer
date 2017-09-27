@@ -17,7 +17,7 @@ class BaseWidget extends blessed.Box {
       this.on('keypress', this.handleKeyPress.bind(this));
     }
 
-    this.screen = opts.screen;
+    this.screen = opts.screen || opts.parent.screen;
     this.screen.append(this);
   }
 

@@ -6,6 +6,7 @@ const { formatRows, levelColors } = require('../utils');
 
 const BaseWidget = require('./BaseWidget');
 const LogDetails = require('./LogDetails');
+const Picker = require('./Picker');
 
 class MainPanel extends BaseWidget {
   constructor(opts={}) {
@@ -20,6 +21,7 @@ class MainPanel extends BaseWidget {
     this.pageHeight = this.height - 3;
     this.pageWidth = this.width - 2 - 2;
     this.lastSearchTerm = null;
+    this.filters = [];
 
     this.log('pageWidth', this.pageWidth);
     this.update();
@@ -33,8 +35,20 @@ class MainPanel extends BaseWidget {
     this.renderLines();
   }
 
+  get filteredLines() {
+    if (!this.filters.length) {
+      return this.lines;
+    }
+
+    return this.lines.filter(line => {
+      return this.filters.reduce((bool, filter) => {
+        return line[filter.key] === filter.value;
+      }, true);
+    });
+  }
+
   renderLines() {
-    this.rows = this.lines.slice(this.initialRow, this.initialRow + this.height - 2);
+    this.rows = this.filteredLines.slice(this.initialRow, this.initialRow + this.height - 2);
     this.update();
   }
 
@@ -86,6 +100,30 @@ class MainPanel extends BaseWidget {
       this.search();
       return;
     }
+    if (ch === 'f') {
+      this.openLevelFilter();
+      return;
+    }
+  }
+
+  openLevelFilter() {
+    const levels = ['debug', 'info', 'warn', 'error'];
+    this.openPicker('Log Level', levels, (err, value) => {
+      if (err) { return; }
+      this.log('selected', value);
+      this.setFilter('level', value);
+    });
+  }
+
+  setFilter(key, value) {
+    this.filters = [{ key, value }];
+    this.renderLines();
+  }
+
+  openPicker(label, items, callback) {
+    const picker = new Picker(this, { label, items });
+    picker.on('select', (err, value) => callback(null, value));
+    picker.setCurrent();
   }
 
   openSearch(clear=false) {
