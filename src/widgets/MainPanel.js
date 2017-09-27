@@ -79,7 +79,7 @@ class MainPanel extends BaseWidget {
           return value && value === filter.value;
         }
         if (filter.method === 'contains') {
-          return value && value.indexOf(filter.value) > -1;
+          return value && value.toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
         }
       }, true);
     }));
@@ -201,6 +201,9 @@ class MainPanel extends BaseWidget {
     this.openPicker('Filter by', fields, (err, field) => {
       if (!field) { return; }
       if (err) { return; }
+      if (field === 'level') {
+        return this.openLevelFilter();
+      }
       if (field === 'other') {
         return this.openCustomFilter();
       }
