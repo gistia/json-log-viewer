@@ -19,7 +19,7 @@ const maxLengths = (columns, arr, spacing, maxWidth) => {
   const lengths = arr.reduce((map, row) => {
     columns.slice(0, -1).forEach(col => {
       const val = row[col.key] || '';
-      map[col.key] = Math.max(map[col.key] || 0, len(val.toString()));
+      map[col.key] = col.length || Math.max(map[col.key] || 0, len(val.toString()));
     });
     return map;
   }, {});

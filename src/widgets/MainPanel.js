@@ -1,4 +1,5 @@
 const blessed = require('blessed');
+const _ = require('lodash');
 
 const { readLog } = require('../log');
 const { formatRows, levelColors } = require('../utils');
@@ -230,6 +231,7 @@ class MainPanel extends BaseWidget {
     const columns = [
       { title: 'Timestap', key: 'timestamp' },
       { title: 'Level', key: 'level', format: v => levelColors[v](v) },
+      { title: 'D', key: 'data', length: 1, format: v => _.isEmpty(v) ? ' ' : '*' },
       { title: 'Message', key: 'message' },
     ];
 
