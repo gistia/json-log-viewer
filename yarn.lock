@@ -223,7 +223,7 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-base-widget@^1.1.0:
+base-widget@1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/base-widget/-/base-widget-1.1.0.tgz#fe43d3515fe420d2104c30b04616bc35fb479b71"
   dependencies:
@@ -259,7 +259,7 @@ binary-extensions@^1.0.0:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.10.0.tgz#9aeb9a6c5e88638aad171e167f5900abe24835d0"
 
-blessed-contrib@^4.8.5:
+blessed-contrib@4.8.5:
   version "4.8.5"
   resolved "https://registry.yarnpkg.com/blessed-contrib/-/blessed-contrib-4.8.5.tgz#39796717c7fe3e4cb4b074cdc8ae2f9280e97ff8"
   dependencies:
@@ -279,7 +279,7 @@ blessed-contrib@^4.8.5:
     term-canvas "0.0.5"
     x256 ">=0.0.1"
 
-blessed@0.1.81, blessed@^0.1.81:
+blessed@0.1.81:
   version "0.1.81"
   resolved "https://registry.yarnpkg.com/blessed/-/blessed-0.1.81.tgz#f962d687ec2c369570ae71af843256e6d0ca1129"
 
@@ -987,7 +987,7 @@ eslint-plugin-import@2.2.0:
     minimatch "^3.0.3"
     pkg-up "^1.0.0"
 
-eslint-plugin-mocha@^4.11.0:
+eslint-plugin-mocha@4.11.0:
   version "4.11.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-mocha/-/eslint-plugin-mocha-4.11.0.tgz#91193a2f55e20a5e35974054a0089d30198ee578"
   dependencies:
@@ -2059,7 +2059,7 @@ lodash@4.13.1:
   version "4.13.1"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.13.1.tgz#83e4b10913f48496d4d16fec4a560af2ee744b68"
 
-lodash@>=3.0.0, lodash@^4.0.0, lodash@^4.17.4, lodash@^4.3.0, lodash@^4.5.0:
+lodash@4.17.4, lodash@>=3.0.0, lodash@^4.0.0, lodash@^4.3.0, lodash@^4.5.0:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 

@@ -21,7 +21,7 @@ class MainPanel extends BaseWidget {
     this.pageHeight = this.height - 3;
     this.pageWidth = this.width - 2 - 2;
     this.lastSearchTerm = null;
-    this.levelFilter = null;
+    this.levelFilter = opts.level;
     this.filters = [];
 
     this.log('pageWidth', this.pageWidth);
@@ -40,6 +40,10 @@ class MainPanel extends BaseWidget {
   }
 
   get lines() {
+    if (!this.rawLines) {
+      return [];
+    }
+
     const filters = _.cloneDeep(this.filters);
     if (this.levelFilter) {
       filters.push({ key: 'level', value: this.levelFilter } );
