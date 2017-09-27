@@ -76,13 +76,20 @@ class MainPanel extends BaseWidget {
       this.openSearch();
       return;
     }
+    if (ch === '?') {
+      this.openSearch(true);
+      return;
+    }
     if (ch === 'n') {
       this.search();
       return;
     }
   }
 
-  openSearch() {
+  openSearch(clear=false) {
+    if (clear) {
+      this.lastSearchTerm = null;
+    }
     const prompt = blessed.prompt({
       parent: this,
       border: 'line',
@@ -94,8 +101,9 @@ class MainPanel extends BaseWidget {
       tags: true,
       keys: true,
       vi: true,
+      padding: 1,
     });
-    prompt.input('Search:', '', (err, value) => {
+    prompt.input('Search:', this.lastSearchTerm || '', (err, value) => {
       if (err) { return; }
       this.search(value);
     });
@@ -115,7 +123,7 @@ class MainPanel extends BaseWidget {
   }
 
   message(str) {
-    var msg = blessed.message({
+    var msg = blessed.question({
       parent: this,
       border: 'line',
       height: 'shrink',
@@ -127,9 +135,13 @@ class MainPanel extends BaseWidget {
       keys: true,
       hidden: true,
       vi: true,
+      padding: 1,
     });
 
-    msg.display(str);
+    msg.ask(str, (err, value) => {
+      this.log('value', value);
+      this.renderLines();
+    });
   }
 
   search(term=this.lastSearchTerm) {
@@ -140,6 +152,8 @@ class MainPanel extends BaseWidget {
     const pos = this.searchTerm(term, false, this.row+1);
     if (pos > -1) {
       this.moveToLine(pos);
+    } else {
+      this.message(`No matches for '${term}'`);
     }
   }
 
