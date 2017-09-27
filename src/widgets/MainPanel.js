@@ -26,22 +26,17 @@ class MainPanel extends BaseWidget {
     this.sort = opts.sort || '-timestamp';
     this.mode = 'normal';
 
-    this.calculateBoundaries();
-
     this.log('pageWidth', this.pageWidth);
     this.on('resize', () => {
-      this.calculateBoundaries();
       this.screen.render();
-      this.renderLines();
       this.fixCursor();
+      this.renderLines();
     });
     this.renderLines();
   }
 
-  calculateBoundaries() {
-    this.pageHeight = this.height - 3;
-    this.pageWidth = this.width - 2 - 2;
-  }
+  get pageHeight() { return this.height - 3; };
+  get pageWidth() { return this.width - 2 - 2; };
 
   loadFile(file) {
     this.file = file;
@@ -125,6 +120,7 @@ class MainPanel extends BaseWidget {
       return;
     }
     if (key.name === 'pageup') {
+      this.log('pageup triggering...');
       this.pageUp();
       return;
     }
@@ -175,12 +171,16 @@ class MainPanel extends BaseWidget {
       process.exit(0);
       return;
     }
-    if (ch === 'B') {
+    if (ch === 'A') {
       this.moveToFirstViewportLine();
       return;
     }
     if (ch === 'G') {
       this.moveToLastViewportLine();
+      return;
+    }
+    if (ch === 'C') {
+      this.moveToCenterViewportLine();
       return;
     }
   }
@@ -392,12 +392,17 @@ class MainPanel extends BaseWidget {
 
   fixCursor() {
     if (this.isOutsideViewPort()) {
-      this.moveToLastViewportLine();
+      this.initialRow = this.row - this.pageHeight;
     }
   }
 
   moveToFirstViewportLine() {
     this.row = this.initialRow;
+    this.renderLines();
+  }
+
+  moveToCenterViewportLine() {
+    this.row = parseInt((this.initialRow + this.pageHeight) / 2, 10);
     this.renderLines();
   }
 
@@ -436,15 +441,18 @@ class MainPanel extends BaseWidget {
 
   pageDown() {
     const relativeRow = this.relativeRow;
-    this.initialRow = Math.min(this.lastRow, this.row + this.pageHeight);
-    this.row = Math.min(this.lastRow, this.initialRow + relativeRow);
+    this.row = Math.min(this.lastRow, this.row + this.pageHeight);
+    this.initialRow = this.row - relativeRow;
     this.renderLines();
   }
 
   pageUp() {
     const relativeRow = this.relativeRow;
-    this.initialRow = Math.max(0, this.row - this.pageHeight);
-    this.row = this.initialRow + relativeRow;
+    if (this.row - this.pageHeight < 0) {
+      return;
+    }
+    this.row = Math.max(0, this.row - this.pageHeight);
+    this.initialRow = Math.max(0, this.row - relativeRow);
     this.renderLines();
   }
 
