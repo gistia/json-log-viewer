@@ -41,7 +41,7 @@ class LogDetails extends BaseWidget {
 
   handleKeyPress(ch, key) {
     this.log('[LogDetails] key', key.name);
-    if (key.name === 'enter') {
+    if (key.name === 'enter' || key.name === 'escape') {
       this.log('detach');
       this.el.detach();
       this.detach();
@@ -55,11 +55,16 @@ class LogDetails extends BaseWidget {
   };
 
   display(entry) {
-    this.entry = entry;
+    this.setLabel(`{bold} ${entry.timestamp} - ${entry.level} - ${entry.message} {/}`);
+    this.entry = entry.data;
     this.update();
   }
 
   update() {
+    if (this.el) {
+      this.el.detach();
+      this.el = null;
+    }
     const content = this.json
       ? JSON.stringify(this.entry, null, 2)
       : formatObject(this.entry);

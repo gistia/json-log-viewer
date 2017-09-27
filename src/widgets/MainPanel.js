@@ -25,6 +25,7 @@ class MainPanel extends BaseWidget {
   }
 
   loadFile(file) {
+    this.setLabel(`{bold} ${file} {/}`);
     this.lines = readLog(file);
     this.lastRow = this.lines.length - 1;
     this.log(this.lines.length);
@@ -103,9 +104,14 @@ class MainPanel extends BaseWidget {
       vi: true,
       padding: 1,
     });
+
     prompt.input('Search:', this.lastSearchTerm || '', (err, value) => {
       if (err) { return; }
-      this.search(value);
+      if (value) {
+        this.search(value);
+      } else {
+        this.renderLines();
+      }
     });
   }
 
