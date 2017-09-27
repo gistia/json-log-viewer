@@ -5,6 +5,7 @@ const _ = require('lodash');
 require('./polyfills');
 
 const MainPanel = require('./widgets/MainPanel');
+const StatusLine = require('./widgets/StatusLine');
 
 const opts = minimist(process.argv.slice(2));
 const logFile = opts._[0];
@@ -26,6 +27,11 @@ screen.key(['C-c'], function(_ch, _key) {
 const level = opts.l || opts.level;
 const sort = opts.s || opts.sort;
 const args = { screen, level, sort };
-const main = new MainPanel(args);
-main.loadFile(logFile);
-main.setCurrent();
+const mainPanel = new MainPanel(args);
+mainPanel.loadFile(logFile);
+
+const statusLine = new StatusLine({ screen, mainPanel });
+screen.append(statusLine);
+mainPanel.setCurrent();
+
+screen.render();

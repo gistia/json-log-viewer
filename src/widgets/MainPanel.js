@@ -12,7 +12,7 @@ const FIELDS = ['timestamp', 'level', 'message'];
 
 class MainPanel extends BaseWidget {
   constructor(opts={}) {
-    super(Object.assign({}, { handleKeys: true }, opts));
+    super(Object.assign({}, { top: '0', height: '99%', handleKeys: true }, opts));
 
     this.currentPage = opts.currentPage || 1;
     this.initialRow = opts.initialRow || 0;
@@ -25,7 +25,8 @@ class MainPanel extends BaseWidget {
     this.lastSearchTerm = null;
     this.levelFilter = opts.level;
     this.filters = [];
-    this.sort = opts.sort || '-timestap';
+    this.sort = opts.sort || '-timestamp';
+    this.mode = 'normal';
 
     this.log('pageWidth', this.pageWidth);
     this.update();
@@ -86,6 +87,7 @@ class MainPanel extends BaseWidget {
   }
 
   renderLines() {
+    this.resetMode();
     this.rows = this.lines.slice(this.initialRow, this.initialRow + this.height - 2);
     this.update();
   }
@@ -151,7 +153,7 @@ class MainPanel extends BaseWidget {
       return;
     }
     if (ch === 'f') {
-      if (this.filters.length) {
+      if (this.filters.length || this.levelFilter) {
         return this.clearFilters();
       }
       this.openFilter();
@@ -186,8 +188,9 @@ class MainPanel extends BaseWidget {
   }
 
   openSort() {
+    this.setMode('sort');
     this.openPicker('Sort by', FIELDS, (err, sort) => {
-      if (!sort) { return; }
+      if (!sort) { return this.resetMode(); }
       if (err) { return; }
       if (this.sortKey === sort && this.sortAsc) {
         return this.setSort(`-${sort}`);
@@ -196,11 +199,21 @@ class MainPanel extends BaseWidget {
     });
   }
 
+  setMode(mode) {
+    this.log('setmode', mode);
+    this.mode = mode;
+    this.emit('update');
+  }
+
+  resetMode() {
+    this.setMode('normal');
+  }
+
   openFilter() {
+    this.setMode('filter');
     const fields = ['timestamp', 'level', 'message', 'other'];
     this.openPicker('Filter by', fields, (err, field) => {
-      if (!field) { return; }
-      if (err) { return; }
+      if (err || !field) { return this.resetMode(); }
       if (field === 'level') {
         return this.openLevelFilter();
       }
@@ -213,7 +226,7 @@ class MainPanel extends BaseWidget {
 
   openCustomFilter() {
     this.prompt(`Field to filter:`, '', (field) => {
-      if (!field) { return; }
+      if (!field) { return this.resetMode(); }
       if (field.indexOf(':') > -1) {
         return this.setFilter(field.split(':')[0], field.split(':')[1], 'contains');
       }
@@ -223,7 +236,7 @@ class MainPanel extends BaseWidget {
 
   openFilterTerm(field) {
     this.prompt(`Filter ${field} by:`, '', (value) => {
-      if (!value) { return; }
+      if (!value) { return this.resetMode(); }
       this.setFilter(field, value, 'contains');
     });
   }
@@ -287,6 +300,7 @@ class MainPanel extends BaseWidget {
   }
 
   openSearch(clear=false) {
+    this.setMode('search');
     if (clear) {
       this.lastSearchTerm = null;
     }
@@ -294,6 +308,7 @@ class MainPanel extends BaseWidget {
   }
 
   openGoToLine() {
+    this.setMode('GOTO');
     this.prompt('Line:', '', (value) => this.moveToLine(parseInt(value, 10)-1));
   }
 
@@ -408,7 +423,7 @@ class MainPanel extends BaseWidget {
     this.setLabel(`[{bold} ${this.file} {/}] [{bold} ${this.row+1}/${this.lastRow+1} {/}]`);
 
     const columns = [
-      { title: 'Timestap', key: 'timestamp' },
+      { title: 'Timestamp', key: 'timestamp' },
       { title: 'Level', key: 'level', format: v => levelColors[v](v) },
       { title: 'D', key: 'data', length: 1, format: v => _.isEmpty(v) ? ' ' : '*' },
       { title: 'Message', key: 'message' },
@@ -427,6 +442,8 @@ class MainPanel extends BaseWidget {
     const list = blessed.element({ tags: true, content });
     this.append(list);
     this.screen.render();
+    this.log('update...', this.filters);
+    this.emit('update');
   }
 }
 
