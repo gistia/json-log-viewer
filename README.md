@@ -16,6 +16,19 @@ Features:
 - filter by any field or metadata
 - search
 
+Hotkeys:
+
+- `arrows` and `page up/down` to move
+- `/` to search
+- `n` to search again
+- `s` to sort
+- `f` to filter
+- `l` to filter by level
+- `g` to go to line
+- `0` to go to first line
+- `$` to go to last line
+- `q` to quit
+
 ## Install
 
 ```bash
