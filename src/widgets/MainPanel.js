@@ -38,13 +38,11 @@ class MainPanel extends BaseWidget {
     this.log('ch', ch, 'key', key);
 
     if (key.name === 'down') {
-      this.row += 1;
-      this.update();
+      this.moveDown();
       return;
     }
     if (key.name === 'up') {
-      this.row -= 1;
-      this.update();
+      this.moveUp();
       return;
     }
     if (key.name === 'w') {
@@ -72,6 +70,22 @@ class MainPanel extends BaseWidget {
       this.lastPage();
       return;
     }
+  }
+
+  moveUp() {
+    this.row = Math.max(0, this.row - 1);
+    if (this.row < this.initialRow) {
+      this.initialRow = this.row;
+    }
+    this.renderLines();
+  }
+
+  moveDown() {
+    this.row = Math.min(this.lastRow, this.row + 1);
+    if (this.row > this.lastVisibleLine) {
+      this.initialRow += 1;
+    }
+    this.renderLines();
   }
 
   firstPage() {
@@ -107,6 +121,10 @@ class MainPanel extends BaseWidget {
 
   get relativeRow() {
     return this.row - this.initialRow;
+  }
+
+  get lastVisibleLine() {
+    return this.initialRow + this.pageHeight;
   }
 
   update() {
