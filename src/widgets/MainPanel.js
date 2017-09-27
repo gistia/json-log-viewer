@@ -107,11 +107,14 @@ class MainPanel extends BaseWidget {
   }
 
   openLevelFilter() {
-    const levels = ['debug', 'info', 'warn', 'error'];
-    this.openPicker('Log Level', levels, (err, value) => {
+    const levels = ['all', 'debug', 'info', 'warn', 'error'];
+    this.openPicker('Log Level', levels, (err, level) => {
       if (err) { return; }
-      this.log('selected', value);
-      this.setFilter('level', value);
+      this.log('selected', level);
+      if (level === 'all') {
+        return this.clearFilters();
+      }
+      this.setFilter('level', level);
     });
   }
 
@@ -120,8 +123,13 @@ class MainPanel extends BaseWidget {
     this.renderLines();
   }
 
+  clearFilters() {
+    this.filters = [];
+    this.renderLines();
+  }
+
   openPicker(label, items, callback) {
-    const picker = new Picker(this, { label, items });
+    const picker = new Picker(this, { label, items, keySelect: true });
     picker.on('select', (err, value) => callback(null, value));
     picker.setCurrent();
   }

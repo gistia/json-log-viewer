@@ -31,6 +31,7 @@ class Picker extends BaseWidget {
     }));
     this.items = opts.items;
     this.label = opts.label || 'Select item';
+    this.keySelect = !!opts.keySelect;
     this.update();
   }
 
@@ -50,19 +51,30 @@ class Picker extends BaseWidget {
     this.list.on('focus', () => this.log('focus'));
     this.list.on('blur', () => this.log('blur'));
     this.list.on('keypress', this.handleKeyPressed.bind(this));
-    this.list.on('select', this.selected.bind(this));
+    this.list.on('select', this.handleSelected.bind(this));
     this.list.setItems(this.items);
     this.append(this.list);
   }
 
-  selected(err, value) {
+  handleSelected(err, value) {
+    this.selected(this.items[value]);
+  }
+
+  selected(value) {
     this.list.detach();
     this.detach();
     this.screen.render();
-    this.emit('select', err, this.items[value]);
+    this.emit('select', null, value);
   }
 
-  handleKeyPressed(_ch, _key) {
+  handleKeyPressed(ch, _key) {
+    if (this.keySelect && /[a-z]/.test(ch)) {
+      const item = this.items.find(i => i.startsWith(ch));
+      if (item) {
+        this.log('item', item);
+        this.selected(item);
+      }
+    }
   }
 
   setCurrent() {
