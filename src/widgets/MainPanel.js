@@ -49,7 +49,7 @@ class MainPanel extends BaseWidget {
       this.log('sort', this.sort);
       if (!this.sort) { return lines; }
 
-      const sorted = _.chain(lines).sortBy(this.sort.replace(/^-/, ''));
+      const sorted = _.chain(lines).sortBy(this.sortKey);
       if (this.sort.startsWith('-')) {
         return sorted.reverse().value();
       }
@@ -136,6 +136,10 @@ class MainPanel extends BaseWidget {
       this.openGoToLine();
       return;
     }
+    if (ch === 's') {
+      this.openSort();
+      return;
+    }
   }
 
   openLevelFilter() {
@@ -148,6 +152,30 @@ class MainPanel extends BaseWidget {
       }
       this.setLevelFilter(level);
     });
+  }
+
+  get sortKey() {
+    return this.sort && this.sort.replace(/^-/, '');
+  }
+
+  get sortAsc() {
+    return !/^-/.test(this.sort);
+  }
+
+  openSort() {
+    const sort = ['timestamp', 'level', 'message'];
+    this.openPicker('Sort by', sort, (err, sort) => {
+      if (err) { return; }
+      if (this.sortKey === sort && this.sortAsc) {
+        return this.setSort(`-${sort}`);
+      }
+      this.setSort(sort);
+    });
+  }
+
+  setSort(sort) {
+    this.sort = sort;
+    this.renderLines();
   }
 
   setLevelFilter(level) {
