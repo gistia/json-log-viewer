@@ -203,6 +203,9 @@ class MainPanel extends BaseWidget {
 
   openCustomFilter() {
     this.prompt(`Field to filter:`, '', (field) => {
+      if (field.indexOf(':') > -1) {
+        return this.setFilter(field.split(':')[0], field.split(':')[1], 'contains');
+      }
       this.openFilterTerm(field);
     });
   }
