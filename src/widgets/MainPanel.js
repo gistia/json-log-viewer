@@ -8,6 +8,8 @@ const BaseWidget = require('./BaseWidget');
 const LogDetails = require('./LogDetails');
 const Picker = require('./Picker');
 
+const FIELDS = ['timestamp', 'level', 'message'];
+
 class MainPanel extends BaseWidget {
   constructor(opts={}) {
     super(Object.assign({}, { handleKeys: true }, opts));
@@ -70,7 +72,15 @@ class MainPanel extends BaseWidget {
 
     return sort(this.rawLines.filter(line => {
       return filters.reduce((bool, filter) => {
-        return line[filter.key] === filter.value;
+        const key = FIELDS.indexOf(filter.key) > -1
+          ? filter.key : `data.${filter.key}`;
+        const value = _.get(line, key);
+        if (!filter.method) {
+          return value && value === filter.value;
+        }
+        if (filter.method === 'contains') {
+          return value && value.indexOf(filter.value) > -1;
+        }
       }, true);
     }));
   }
@@ -140,6 +150,14 @@ class MainPanel extends BaseWidget {
       this.openSort();
       return;
     }
+    if (ch === 'f') {
+      this.openFilter();
+      return;
+    }
+    if (ch === 'r') {
+      this.clearFilters();
+      return;
+    }
   }
 
   openLevelFilter() {
@@ -163,13 +181,35 @@ class MainPanel extends BaseWidget {
   }
 
   openSort() {
-    const sort = ['timestamp', 'level', 'message'];
-    this.openPicker('Sort by', sort, (err, sort) => {
+    this.openPicker('Sort by', FIELDS, (err, sort) => {
       if (err) { return; }
       if (this.sortKey === sort && this.sortAsc) {
         return this.setSort(`-${sort}`);
       }
       this.setSort(sort);
+    });
+  }
+
+  openFilter() {
+    const fields = ['timestamp', 'level', 'message', 'other'];
+    this.openPicker('Filter by', fields, (err, field) => {
+      if (err) { return; }
+      if (field === 'other') {
+        return this.openCustomFilter();
+      }
+      this.openFilterTerm(field);
+    });
+  }
+
+  openCustomFilter() {
+    this.prompt(`Field to filter:`, '', (field) => {
+      this.openFilterTerm(field);
+    });
+  }
+
+  openFilterTerm(field) {
+    this.prompt(`Filter ${field} by:`, '', (value) => {
+      this.setFilter(field, value, 'contains');
     });
   }
 
@@ -189,8 +229,8 @@ class MainPanel extends BaseWidget {
     this.renderLines();
   }
 
-  setFilter(key, value) {
-    this.filters = [{ key, value }];
+  setFilter(key, value, method) {
+    this.filters = [{ key, value, method }];
     this.renderLines();
   }
 
