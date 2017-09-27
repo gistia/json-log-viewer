@@ -288,12 +288,13 @@ class MainPanel extends BaseWidget {
   filterChanged() {
     this.row = 0;
     this.initialRow = 0;
+    this.setUpdated();
     this.renderLines();
   }
 
   setFilter(key, value, method) {
     this.filters = [{ key, value, method }];
-    this.renderLines();
+    this.filterChanged();
   }
 
   clearFilters() {
