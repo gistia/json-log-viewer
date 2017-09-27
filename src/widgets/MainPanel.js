@@ -442,7 +442,6 @@ class MainPanel extends BaseWidget {
     const list = blessed.element({ tags: true, content });
     this.append(list);
     this.screen.render();
-    this.log('update...', this.filters);
     this.emit('update');
   }
 }

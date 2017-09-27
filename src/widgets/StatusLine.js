@@ -44,8 +44,6 @@ class StatusLine extends blessed.Box {
     const sort = this.sort ? `| sort: {bold}${this.sort}{/}` : '';
     const filterExpr = this.filters.map(f => `${f.key}:${f.value}`).join(' ');
     const filters = filterExpr ? `| filters: {bold}${filterExpr}{/}` : '';
-    this.log('status updated', this.filters, filters);
-    this.log('filters', [ { key: 'level', value: 'error' } ].map(f => `${f.key}:${f.value}`));
     this.setContent(` ${mode} ${line} ${sort} ${filters}`);
     this.screen.render();
   }
