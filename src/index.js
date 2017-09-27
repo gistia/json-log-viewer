@@ -24,7 +24,8 @@ screen.key(['q', 'C-c'], function(_ch, _key) {
 });
 
 const level = opts.l || opts.level;
-const args = { screen, level };
+const sort = opts.s || opts.sort;
+const args = { screen, level, sort };
 const main = new MainPanel(args);
 main.loadFile(logFile);
 main.setCurrent();

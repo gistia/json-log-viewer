@@ -23,7 +23,7 @@ class MainPanel extends BaseWidget {
     this.lastSearchTerm = null;
     this.levelFilter = opts.level;
     this.filters = [];
-    this.sort = '-timestap';
+    this.sort = opts.sort || '-timestap';
 
     this.log('pageWidth', this.pageWidth);
     this.update();
