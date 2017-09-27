@@ -135,6 +135,12 @@ class MainPanel extends BaseWidget {
 
   setLevelFilter(level) {
     this.levelFilter = level;
+    this.filterChanged();
+  }
+
+  filterChanged() {
+    this.row = 0;
+    this.initialRow = 0;
     this.renderLines();
   }
 
@@ -144,8 +150,9 @@ class MainPanel extends BaseWidget {
   }
 
   clearFilters() {
+    this.levelFilter = null;
     this.filters = [];
-    this.renderLines();
+    this.filterChanged();
   }
 
   openPicker(label, items, callback) {
@@ -300,7 +307,7 @@ class MainPanel extends BaseWidget {
   }
 
   update() {
-    this.setLabel(`[{bold} ${this.file} {/}] [{bold} ${this.row+1}/${this.lastRow} {/}]`);
+    this.setLabel(`[{bold} ${this.file} {/}] [{bold} ${this.row+1}/${this.lastRow+1} {/}]`);
 
     const columns = [
       { title: 'Timestap', key: 'timestamp' },
