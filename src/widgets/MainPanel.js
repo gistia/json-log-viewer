@@ -81,7 +81,7 @@ class MainPanel extends BaseWidget {
     };
 
     countLines(file, n => {
-      this.lastRow = n;
+      this.lastRow = n - 1;
       this.emit('update');
     });
 
@@ -477,7 +477,7 @@ class MainPanel extends BaseWidget {
   }
 
   moveDown() {
-    this.row = this.row + 1;
+    this.row = Math.min(this.lastRow, this.row + 1);
     const outside = this.row > this.lastVisibleLine;
     if (outside) {
       this.initialRow += 1;
@@ -493,6 +493,10 @@ class MainPanel extends BaseWidget {
   }
 
   pageDown() {
+    if (this.lastRow && (this.initialRow + this.pageHeight > this.lastRow)) {
+      this.row = this.lastRow;
+      return;
+    }
     const relativeRow = this.relativeRow;
     this.initialRow += this.pageHeight;
     this.row = this.initialRow + relativeRow;
