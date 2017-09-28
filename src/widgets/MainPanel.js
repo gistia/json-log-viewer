@@ -103,10 +103,10 @@ class MainPanel extends BaseWidget {
     }));
   }
 
-  renderLines() {
+  renderLines(notify=true) {
     this.resetMode();
     this.rows = this.lines.slice(this.initialRow, this.initialRow + this.height - 2);
-    this.update();
+    this.update(notify);
   }
 
   handleKeyPress(ch, key) {
@@ -428,18 +428,20 @@ class MainPanel extends BaseWidget {
 
   moveUp() {
     this.row = Math.max(0, this.row - 1);
-    if (this.row < this.initialRow) {
+    const outside = this.row < this.initialRow;
+    if (outside) {
       this.initialRow = this.row;
     }
-    this.renderLines();
+    this.renderLines(outside);
   }
 
   moveDown() {
     this.row = Math.min(this.lastRow, this.row + 1);
-    if (this.row > this.lastVisibleLine) {
+    const outside = this.row > this.lastVisibleLine;
+    if (outside) {
       this.initialRow += 1;
     }
-    this.renderLines();
+    this.renderLines(outside);
   }
 
   firstPage() {
@@ -484,7 +486,7 @@ class MainPanel extends BaseWidget {
     return this.initialRow + this.pageHeight;
   }
 
-  update() {
+  update(notify=true) {
     this.setLabel(`[{bold} ${this.file} {/}] [{bold} ${this.row+1}/${this.lastRow+1} {/}]`);
 
     const columns = [
@@ -507,7 +509,9 @@ class MainPanel extends BaseWidget {
     const list = blessed.element({ tags: true, content });
     this.append(list);
     this.screen.render();
-    this.setUpdated();
+    if (notify) {
+      this.setUpdated();
+    }
   }
 }
 
