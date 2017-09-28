@@ -8,9 +8,13 @@ const formatRows = (rows, columns, spacing=1, maxWidth) => {
     return columns.map(column => {
       const { format, key } = column;
       const rawValue = row[key];
-      const value = _.isFunction(format) ? format(rawValue) : rawValue;
 
-      return padEnd(value, lengths[key], !format);
+      try {
+        const value = _.isFunction(format) ? format(rawValue) : rawValue;
+        return padEnd(value, lengths[key], !format);
+      } catch (e) {
+        return rawValue;
+      }
     }).join(spaces(spacing));
   });
 };
