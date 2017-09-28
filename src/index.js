@@ -8,9 +8,9 @@ const MainPanel = require('./widgets/MainPanel');
 const StatusLine = require('./widgets/StatusLine');
 
 const opts = minimist(process.argv.slice(2));
-const logFile = opts._[0];
+const file = opts._[0];
 
-if (!logFile) {
+if (!file) {
   // eslint-disable-next-line no-console
   console.log('error: missing log file');
   process.exit(1);
@@ -26,10 +26,9 @@ screen.key(['C-c'], function(_ch, _key) {
 
 const level = opts.l || opts.level;
 const sort = opts.s || opts.sort;
-const args = { screen, level, sort };
+const args = { screen, level, sort, file };
 
 const mainPanel = new MainPanel(args);
-mainPanel.loadFile(logFile);
 
 const statusLine = new StatusLine({ screen, mainPanel });
 screen.append(statusLine);

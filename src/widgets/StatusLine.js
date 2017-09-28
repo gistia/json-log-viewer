@@ -29,10 +29,17 @@ class StatusLine extends blessed.Box {
   }
 
   get row() { return this.mainPanel.row+1; }
-  get lastRow() { return this.mainPanel.lastRow+1; };
   get mode() { return this.mainPanel.mode.toUpperCase(); }
   get sort() { return this.mainPanel.sort; }
   get pageHeight() { return this.mainPanel.pageHeight; }
+
+  get lastRow() {
+    if (this.mainPanel.lastRow) {
+      return this.mainPanel.lastRow+1;
+    }
+    return '...';
+  };
+
   get filters() {
     const { filters, levelFilter } = this.mainPanel;
     if (this.mainPanel.levelFilter) {

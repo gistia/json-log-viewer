@@ -1,8 +1,8 @@
 const blessed = require('blessed');
 const _ = require('lodash');
 
-const { readLog } = require('../log');
 const { formatRows, levelColors } = require('../utils');
+const { readChunk, countLines } = require('../file');
 
 const BaseWidget = require('./BaseWidget');
 const LogDetails = require('./LogDetails');
@@ -14,6 +14,7 @@ class MainPanel extends BaseWidget {
   constructor(opts={}) {
     super(Object.assign({}, { top: '0', height: '99%', handleKeys: true }, opts));
 
+    this.file = opts.file;
     this.currentPage = opts.currentPage || 1;
     this.initialRow = opts.initialRow || 0;
     this.colSpacing = opts.colSpacing || 2;
@@ -26,6 +27,8 @@ class MainPanel extends BaseWidget {
     this.sort = opts.sort || '-timestamp';
     this.mode = 'normal';
     this.updated = true;
+    this.loading = false;
+    this.lastRow = null;
 
     this.log('pageWidth', this.pageWidth);
     this.on('resize', () => {
@@ -33,29 +36,62 @@ class MainPanel extends BaseWidget {
       this.fixCursor();
       this.renderLines();
     });
-    this.renderLines();
+    this.readLines();
   }
 
   get pageHeight() { return this.height - 3; };
   get pageWidth() { return this.width - 2 - 2; };
 
-  loadFile(file) {
-    this.file = file;
-    this.rawLines = readLog(file);
-    this.log('loaded', this.lines.length);
-    this.renderLines();
+  setLoading() {
+    this.loading = true;
+    this.emit('update');
   }
 
-  get lastRow() {
-    return (this.lines || []).length - 1;
+  clearLoading() {
+    this.loading = false;
+    this.emit('update');
   }
 
-  get lines() {
-    if (this.updated) {
-      this.linesCache = this.calcLines();
-      this.updated = false;
+  readLines() {
+    const file = this.file;
+    const start = this.initialRow;
+    const length = this.pageHeight + 1;
+    const filters = _.cloneDeep(this.filters);
+
+    this.setLoading();
+
+    if (this.levelFilter) {
+      filters.push({ key: 'level', value: this.levelFilter } );
     }
-    return this.linesCache;
+
+    const filter = row => {
+      const line = JSON.parse(row);
+      return filters.reduce((bool, filter) => {
+        const key = FIELDS.indexOf(filter.key) > -1
+          ? filter.key : `data.${filter.key}`;
+        const value = _.get(line, key);
+        if (!value) { return false; }
+        if (!filter.method) {
+          return value && value === filter.value;
+        }
+        if (filter.method === 'contains') {
+          return value && value.toString().toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
+        }
+      }, true);
+    };
+
+    countLines(file, n => {
+      this.lastRow = n;
+      this.emit('update');
+    });
+
+    this.log('readLines', filters);
+
+    readChunk({ file, start, length, filter, log: (...s) => this.log(...s) }, lines => {
+      this.lines = lines;
+      this.renderLines();
+      this.clearLoading();
+    });
   }
 
   calcLines() {
@@ -104,8 +140,8 @@ class MainPanel extends BaseWidget {
   }
 
   renderLines(notify=true) {
+    this.log('renderLines');
     this.resetMode();
-    this.rows = this.lines.slice(this.initialRow, this.initialRow + this.height - 2);
     this.update(notify);
   }
 
@@ -139,7 +175,7 @@ class MainPanel extends BaseWidget {
       return;
     }
     if (ch === '0') {
-      this.firstPage();
+      this.moveToFirstLine();
       return;
     }
     if (ch === '$') {
@@ -289,7 +325,7 @@ class MainPanel extends BaseWidget {
     this.row = 0;
     this.initialRow = 0;
     this.setUpdated();
-    this.renderLines();
+    this.readLines();
   }
 
   setFilter(key, value, method) {
@@ -398,7 +434,11 @@ class MainPanel extends BaseWidget {
   moveToLine(num) {
     this.row = num;
     this.initialRow = num;
-    this.renderLines();
+    this.readLines();
+  }
+
+  moveToFirstLine() {
+    this.moveToLine(0);
   }
 
   isOutsideViewPort() {
@@ -430,24 +470,20 @@ class MainPanel extends BaseWidget {
     this.row = Math.max(0, this.row - 1);
     const outside = this.row < this.initialRow;
     if (outside) {
-      this.initialRow = this.row;
+      this.initialRow -= 1;
+      return this.readLines();
     }
     this.renderLines(outside);
   }
 
   moveDown() {
-    this.row = Math.min(this.lastRow, this.row + 1);
+    this.row = this.row + 1;
     const outside = this.row > this.lastVisibleLine;
     if (outside) {
       this.initialRow += 1;
+      return this.readLines();
     }
     this.renderLines(outside);
-  }
-
-  firstPage() {
-    this.row = 0;
-    this.initialRow = 0;
-    this.renderLines();
   }
 
   lastPage() {
@@ -458,19 +494,19 @@ class MainPanel extends BaseWidget {
 
   pageDown() {
     const relativeRow = this.relativeRow;
-    this.row = Math.min(this.lastRow, this.row + this.pageHeight);
-    this.initialRow = this.row - relativeRow;
-    this.renderLines();
+    this.initialRow += this.pageHeight;
+    this.row = this.initialRow + relativeRow;
+    this.readLines();
   }
 
   pageUp() {
-    const relativeRow = this.relativeRow;
-    if (this.row - this.pageHeight < 0) {
-      return;
+    if (this.initialRow - this.pageHeight < 0) {
+      return this.moveToFirstLine();
     }
-    this.row = Math.max(0, this.row - this.pageHeight);
-    this.initialRow = Math.max(0, this.row - relativeRow);
-    this.renderLines();
+    const relativeRow = this.relativeRow;
+    this.initialRow -= this.pageHeight;
+    this.row = this.initialRow + relativeRow;
+    this.readLines();
   }
 
   displayDetails() {
@@ -487,7 +523,7 @@ class MainPanel extends BaseWidget {
   }
 
   update(notify=true) {
-    this.setLabel(`[{bold} ${this.file} {/}] [{bold} ${this.row+1}/${this.lastRow+1} {/}]`);
+    this.setLabel(`[{bold} ${this.file} {/}]`);
 
     const columns = [
       { title: 'Timestamp', key: 'timestamp' },
@@ -504,8 +540,9 @@ class MainPanel extends BaseWidget {
       return str;
     };
 
-    const content = formatRows(
-      this.rows, columns, this.colSpacing, this.pageWidth-1).map(highlight).join('\n');
+    const rows = JSON.parse(`[${this.lines.join(',')}]`);
+    const content = formatRows(rows, columns, this.colSpacing, this.pageWidth-1)
+      .map(highlight).join('\n');
     const list = blessed.element({ tags: true, content });
     this.append(list);
     this.screen.render();
