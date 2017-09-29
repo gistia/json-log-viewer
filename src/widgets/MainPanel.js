@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const { formatRows, levelColors } = require('../utils');
 const { readChunk, countLines } = require('../file');
+const FileBuffer = require('../buffer');
 
 const BaseWidget = require('./BaseWidget');
 const LogDetails = require('./LogDetails');
@@ -29,6 +30,7 @@ class MainPanel extends BaseWidget {
     this.updated = true;
     this.loading = false;
     this.lastRow = null;
+    this.fileBuffer = new FileBuffer(this.file, { log: this.log.bind(this) });
 
     this.log('pageWidth', this.pageWidth);
     this.on('resize', () => {
@@ -87,11 +89,16 @@ class MainPanel extends BaseWidget {
 
     this.log('readLines', filters);
 
-    readChunk({ file, start, length, filter, log: (...s) => this.log(...s) }, lines => {
+    this.fileBuffer.get(start, length, lines => {
       this.lines = lines;
       this.renderLines();
       this.clearLoading();
     });
+    // readChunk({ file, start, length, filter, log: (...s) => this.log(...s) }, lines => {
+    //   this.lines = lines;
+    //   this.renderLines();
+    //   this.clearLoading();
+    // });
   }
 
   calcLines() {
