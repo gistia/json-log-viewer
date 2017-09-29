@@ -477,7 +477,7 @@ class MainPanel extends BaseWidget {
   }
 
   moveDown() {
-    this.row = Math.min(this.lastRow, this.row + 1);
+    this.row = this.lastRow ? Math.min(this.lastRow, this.row + 1) : this.row + 1;
     const outside = this.row > this.lastVisibleLine;
     if (outside) {
       this.initialRow += 1;
