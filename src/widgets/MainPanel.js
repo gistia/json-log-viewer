@@ -37,7 +37,7 @@ class MainPanel extends BaseWidget {
     this.on('resize', () => {
       this.screen.render();
       this.fixCursor();
-      this.renderLines();
+      this.readLines();
     });
     this.readLines();
   }
@@ -60,36 +60,17 @@ class MainPanel extends BaseWidget {
     const length = this.pageHeight + 1;
     const filters = _.cloneDeep(this.filters);
 
-    // this.setLoading();
-
     if (this.levelFilter) {
       filters.push({ key: 'level', value: this.levelFilter } );
     }
 
-    const filter = row => {
-      const line = JSON.parse(row);
-      return filters.reduce((bool, filter) => {
-        const key = FIELDS.indexOf(filter.key) > -1
-          ? filter.key : `data.${filter.key}`;
-        const value = _.get(line, key);
-        if (!value) { return false; }
-        if (!filter.method) {
-          return value && value === filter.value;
-        }
-        if (filter.method === 'contains') {
-          return value && value.toString().toLowerCase().indexOf(filter.value.toLowerCase()) > -1;
-        }
-      }, true);
-    };
+    this.log('readLines - filters', filters);
 
-    this.log('readLines', filters);
-
-    this.fileBuffer.get(start, length, lines => {
+    this.fileBuffer.get(start, length, filters, lines => {
       this.lastRow = this.fileBuffer.lastFileLine - 1;
       this.emit('update');
       this.lines = lines;
       this.renderLines();
-      // this.clearLoading();
     });
   }
 
@@ -120,7 +101,7 @@ class MainPanel extends BaseWidget {
       return sort(this.rawLines);
     }
 
-    this.log('filters', filters);
+    this.log('MainPanel - filters', filters);
 
     return sort(this.rawLines.filter(line => {
       return filters.reduce((bool, filter) => {
