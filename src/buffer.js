@@ -30,13 +30,16 @@ class FileBuffer extends EventEmitter {
 
     if (this.filters !== filters) {
       // resets buffer when filter changes
+      this.log('* filter changed');
       this.filters = filters;
       this.lines = undefined;
-      this.log('* filter changed');
     }
 
     if (this.lines === undefined) {
       this.log('* lines are empty');
+      if (this.lastFileLine) {
+        return this.loadBuffer(line, count, filters, callback);
+      }
       return this.countLines(total => {
         this.lastFileLine = total;
         this.loadBuffer(line, count, filters, callback);
