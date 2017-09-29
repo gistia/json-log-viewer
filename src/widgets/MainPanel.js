@@ -94,11 +94,6 @@ class MainPanel extends BaseWidget {
       this.renderLines();
       this.clearLoading();
     });
-    // readChunk({ file, start, length, filter, log: (...s) => this.log(...s) }, lines => {
-    //   this.lines = lines;
-    //   this.renderLines();
-    //   this.clearLoading();
-    // });
   }
 
   calcLines() {
@@ -522,7 +517,8 @@ class MainPanel extends BaseWidget {
 
   displayDetails() {
     const details = new LogDetails({ screen: this.screen });
-    details.display(this.rows[this.relativeRow]);
+    const line = this.fileBuffer.getLine(this.row);
+    details.display(JSON.parse(line));
   }
 
   get relativeRow() {

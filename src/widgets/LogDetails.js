@@ -55,7 +55,7 @@ class LogDetails extends BaseWidget {
 
   display(entry) {
     this.setLabel(`{bold} ${entry.timestamp} - ${entry.level} - ${entry.message} {/}`);
-    this.entry = entry.data;
+    this.entry = entry;
     this.update();
   }
 

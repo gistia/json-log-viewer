@@ -1,4 +1,4 @@
-const BUFFER_SIZE = 100; // lines
+const BUFFER_SIZE = 1000; // lines
 
 const { readChunk, countLines } = require('./file');
 
@@ -15,9 +15,12 @@ class FileBuffer {
     return this.firstBufferLine + this.lines.length || 0;
   }
 
+  getLine(n) {
+    return this.lines[n - this.firstBufferLine];
+  }
+
   get(line, count, callback) {
     if (!this.lines) {
-      this.log('initial load');
       return this.countLines(total => {
         this.lastFileLine = total;
         this.loadBuffer(line, count, callback);
@@ -29,16 +32,10 @@ class FileBuffer {
       count = this.lastFileLine - line;
     }
 
-    // this.log('line', line);
-    // this.log('this.firstBufferLine', this.firstBufferLine);
-    // this.log('this.lastBufferLine', this.lastBufferLine);
-
     if (line < this.firstBufferLine) {
       this.log('before buffer');
       return this.loadBuffer(line, count, callback);
     }
-
-    // this.log('(line + count)', (line + count));
 
     if ((line + count) > this.lastBufferLine) {
       this.log('after buffer');
