@@ -2,7 +2,6 @@ const blessed = require('blessed');
 const _ = require('lodash');
 
 const { formatRows, levelColors } = require('../utils');
-const { readChunk, countLines } = require('../file');
 const FileBuffer = require('../buffer');
 
 const BaseWidget = require('./BaseWidget');
@@ -31,6 +30,8 @@ class MainPanel extends BaseWidget {
     this.loading = false;
     this.lastRow = null;
     this.fileBuffer = new FileBuffer(this.file, { log: this.log.bind(this) });
+    this.fileBuffer.on('load start', () => this.setLoading());
+    this.fileBuffer.on('load end', () => this.clearLoading());
 
     this.log('pageWidth', this.pageWidth);
     this.on('resize', () => {
@@ -55,12 +56,11 @@ class MainPanel extends BaseWidget {
   }
 
   readLines() {
-    const file = this.file;
     const start = this.initialRow;
     const length = this.pageHeight + 1;
     const filters = _.cloneDeep(this.filters);
 
-    this.setLoading();
+    // this.setLoading();
 
     if (this.levelFilter) {
       filters.push({ key: 'level', value: this.levelFilter } );
@@ -82,17 +82,14 @@ class MainPanel extends BaseWidget {
       }, true);
     };
 
-    countLines(file, n => {
-      this.lastRow = n - 1;
-      this.emit('update');
-    });
-
     this.log('readLines', filters);
 
     this.fileBuffer.get(start, length, lines => {
+      this.lastRow = this.fileBuffer.lastFileLine - 1;
+      this.emit('update');
       this.lines = lines;
       this.renderLines();
-      this.clearLoading();
+      // this.clearLoading();
     });
   }
 
@@ -149,6 +146,10 @@ class MainPanel extends BaseWidget {
 
   handleKeyPress(ch, key) {
     this.log('key', ch || (key && key.name));
+
+    if (this.loading) {
+      return;
+    }
 
     if (key.name === 'down') {
       this.moveDown();

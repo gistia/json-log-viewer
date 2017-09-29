@@ -1,9 +1,12 @@
-const BUFFER_SIZE = 1000; // lines
+const EventEmitter = require('events');
 
 const { readChunk, countLines } = require('./file');
+const BUFFER_SIZE = 5000; // lines
 
-class FileBuffer {
+class FileBuffer extends EventEmitter {
+  // eslint-disable-next-line no-console
   constructor(file, { firstLine=0, bufferSize=BUFFER_SIZE, _readChunk=readChunk, log=console.log }={}) {
+    super();
     this.file = file;
     this.firstBufferLine = firstLine;
     this.bufferSize = bufferSize;
@@ -12,7 +15,7 @@ class FileBuffer {
   }
 
   get lastBufferLine() {
-    return this.firstBufferLine + this.lines.length || 0;
+    return this.firstBufferLine + (this.lines && this.lines.length || 0);
   }
 
   getLine(n) {
@@ -43,6 +46,7 @@ class FileBuffer {
     }
 
     const start = line - this.firstBufferLine;
+    this.emit('load end');
     callback(this.lines.slice(start, start + count));
   }
 
@@ -51,6 +55,7 @@ class FileBuffer {
   }
 
   loadBuffer(line, count, callback) {
+    this.emit('load start');
     const start = Math.max(0, line - this.bufferSize / 2);
     const length = this.bufferSize;
 

@@ -29,7 +29,12 @@ class StatusLine extends blessed.Box {
   }
 
   get row() { return this.mainPanel.row+1; }
-  get mode() { return this.mainPanel.mode.toUpperCase(); }
+  get mode() {
+    if (this.mainPanel.loading) {
+      return 'Loading...';
+    }
+    return this.mainPanel.mode.toUpperCase();
+  }
   get sort() { return this.mainPanel.sort; }
   get pageHeight() { return this.mainPanel.pageHeight; }
 
@@ -55,7 +60,8 @@ class StatusLine extends blessed.Box {
     const sort = this.sort ? `| sort: {bold}${this.sort}{/}` : '';
     const filterExpr = this.filters.map(f => `${f.key}:${f.value}`).join(' ');
     const filters = filterExpr ? `| filters: {bold}${filterExpr}{/}` : '';
-    this.setContent(` ${mode} ${line} ${pageSize} ${sort} ${filters}`);
+    const buffer = `| ${this.mainPanel.fileBuffer.firstBufferLine}-${this.mainPanel.fileBuffer.lastBufferLine}`;
+    this.setContent(` ${mode} ${line} ${pageSize} ${sort} ${filters} ${buffer}`);
     this.screen.render();
   }
 }
