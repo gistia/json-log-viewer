@@ -41,6 +41,20 @@ npm install --global json-log-viewer
 jv application.log.2017-01-01 --sort -timestamp
 ```
 
+## Screenshots
+
+__Details view__
+
+![screenshot](screenshot1.png)
+
+__Filters__
+
+![screenshot](screenshot2.png)
+
+__Log level selection__
+
+![screenshot](screenshot3.png)
+
 ## License
 
 [MIT](http://vjpr.mit-license.org)
