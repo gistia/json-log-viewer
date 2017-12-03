@@ -42,6 +42,9 @@ const stripColors = (text) => {
 };
 
 const len = (text, ignoreColors=false) => {
+  if (!text) {
+    return 0;
+  }
   if (ignoreColors) {
     return text.length;
   }
