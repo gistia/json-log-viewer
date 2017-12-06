@@ -41,7 +41,7 @@ describe('readLog', () => {
   });
 });
 
-describe.only('transform', () => {
+describe('transform', () => {
   let exists = false;
   let contents = null;
 
