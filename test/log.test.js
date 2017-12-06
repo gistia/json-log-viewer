@@ -1,5 +1,5 @@
 const { loadFixture } = require('./support/fixtures');
-const { readLog } = require('../src/log');
+const { readLog, transform } = require('../src/log');
 
 describe('readLog', () => {
   let entries;
@@ -37,6 +37,33 @@ describe('readLog', () => {
 
     it('skips invalid entries', () => {
       expect(entries.length).to.eql(3);
+    });
+  });
+});
+
+describe.only('transform', () => {
+  let exists = false;
+  let contents = null;
+
+  const fs = {
+    existsSync: () => exists,
+    readFileSync: () => contents,
+  };
+
+  describe('when config doesn\'t exist', () => {
+    it('returns the unmodified line', () => {
+      expect(transform('something', fs)).to.eql('something');
+    });
+  });
+
+  describe('when config exists', () => {
+    it('transforms the line', () => {
+      exists = true;
+      contents = loadFixture('transform1.ini');
+      const logEntry = JSON.parse(loadFixture('monolog.log.json'));
+      const entry = transform(logEntry, fs);
+      expect(entry.timestamp).to.eql('2017-12-06 09:23:42.253060');
+      expect(entry.level).to.eql('INFO');
     });
   });
 });
