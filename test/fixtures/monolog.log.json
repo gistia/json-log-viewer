@@ -1,0 +1,14 @@
+{
+  "message":
+    "Matched route \"**_heartbeat_check\" (parameters: \"_controller\": \"**\\Controller\\**Controller::heartbeatCheckAction\", \"_route\": \"**_heartbeat_check\")",
+  "context": [],
+  "level": 200,
+  "level_name": "INFO",
+  "channel": "request",
+  "datetime": {
+    "date": "2017-12-06 09:23:42.253060",
+    "timezone_type": 3,
+    "timezone": "Europe/Berlin"
+  },
+  "extra": []
+}
