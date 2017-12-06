@@ -1,6 +1,6 @@
 {
   "name": "json-log-viewer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "JSON Log Viewer",
   "main": "src/index.js",
   "author": "Felipe Coury",
