@@ -5,10 +5,21 @@ const _ = require('lodash');
 class Reader {
   constructor(fileName) {
     this.fileName = fileName;
+    this.filters = [];
   }
 
   parse(line) {
     return JSON.parse(line);
+  }
+
+  addFilter(filter) {
+    this.filters.push(filter);
+  }
+
+  matchFilters(line) {
+    return !this.filters.find(filter => {
+      return !filter.apply(line);
+    });
   }
 
   getLines(start, size) {
@@ -23,8 +34,12 @@ class Reader {
         .pipe(es.split())
         .pipe(
           es.mapSync(line => {
-            if (currentLine++ >= start) {
-              lines.push(this.parse(line));
+            const parsedLine = this.parse(line);
+
+            if (this.matchFilters(parsedLine)) {
+              if (currentLine++ >= start) {
+                lines.push(parsedLine);
+              }
             }
 
             if (pending && lines.length >= size) {
