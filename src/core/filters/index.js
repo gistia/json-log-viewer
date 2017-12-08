@@ -6,3 +6,4 @@ class Filter {
 }
 
 module.exports = Filter;
+module.exports.ContainsFilter = require('./contains');

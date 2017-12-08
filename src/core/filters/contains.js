@@ -1,4 +1,4 @@
-const Filter = require('./filter');
+const Filter = require('.');
 
 class ContainsFilter extends Filter {
   constructor(field, value, sensitive=false) {

@@ -1,5 +1,5 @@
-const Reader = require('./reader');
-const ContainsFilter = require('./contains');
+const Reader = require('../src/core/reader');
+const { ContainsFilter } = require('../src/core/filters');
 
 describe.only('Reader', () => {
   describe('getLines', () => {
