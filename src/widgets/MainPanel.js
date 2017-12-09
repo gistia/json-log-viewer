@@ -31,8 +31,22 @@ class MainPanel extends BaseWidget {
     return this.formatter.format(line, idx+1 === this.currentLine);
   }
 
-  renderLines() {
-    this.reader.getLines(this.initialLine, this.pageHeight+1).then(lines => {
+  getLines(forceReload=false) {
+    if (forceReload || this.initialLine !== this.lastInitialLine) {
+      global.screen.log('reloading');
+      return this.reader.getLines(this.initialLine, this.pageHeight+1).then(lines => {
+        this.lastInitialLine = this.initialLine;
+        this.lines = lines;
+        return lines;
+      });
+    } else {
+      global.screen.log('not reloading');
+      return Promise.resolve(this.lines);
+    }
+  }
+
+  renderLines(forceReload=false) {
+    this.getLines(forceReload).then(lines => {
       const content = lines.map(this.format.bind(this)).join('\n');
       const list = blessed.element({ tags: true, content });
       this.append(list);
@@ -159,12 +173,12 @@ class MainPanel extends BaseWidget {
 
   setLevelFilter(level) {
     this.reader.addFilter(new Filter('level', level));
-    this.renderLines();
+    this.renderLines(true);
   }
 
   clearFilters() {
     this.reader.clearFilters();
-    this.renderLines();
+    this.renderLines(true);
   }
 
   prompt(str, value, callback) {
