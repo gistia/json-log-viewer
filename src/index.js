@@ -24,7 +24,7 @@ screen.key(['C-c'], function(_ch, _key) {
   return process.exit(0);
 });
 
-global.log = (...s) => screen.log(s.map(s => s.toString()).join(' '));
+global.log = (...s) => screen.log(s.map(s => JSON.stringify(s)).join(' '));
 
 const reader = new Reader(logFile);
 

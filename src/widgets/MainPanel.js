@@ -1,6 +1,7 @@
 const blessed = require('blessed');
 
 const BaseWidget = require('./BaseWidget');
+const LogDetails = require('./LogDetails');
 const Picker = require('./Picker');
 const Formatter = require('../core/formatter');
 const Filter = require('../core/filters');
@@ -24,6 +25,7 @@ class MainPanel extends BaseWidget {
   get lastLine() { return this.initialLine + this.pageHeight; };
   get realLine() { return this.initialLine + this.currentLine - 1; };
   get lastRelativeLine() { return this.pageHeight + 1; };
+  get currentLineContents() { return this.lines[this.currentLine - 1]; };
 
   format(line, idx) {
     return this.formatter.format(line, idx+1 === this.currentLine);
@@ -206,6 +208,12 @@ class MainPanel extends BaseWidget {
     this.renderLines(true);
   }
 
+  showDetails() {
+    const details = new LogDetails({ screen: this.screen });
+    log('details', this.currentLineContents);
+    details.display(this.currentLineContents);
+  }
+
   prompt(str, value, callback) {
     const prompt = blessed.prompt({
       parent: this,
@@ -283,6 +291,7 @@ const shortcuts = {
   f: 'toggleSearch',
 
   // editor commands
+  enter: 'showDetails',
   q: 'quit',
 };
 
