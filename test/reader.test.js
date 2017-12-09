@@ -30,6 +30,15 @@ describe('Reader', () => {
     });
   });
 
+  describe('countLines', () => {
+    it('returns the number of lines on a file', () => {
+      const reader = new Reader('test/fixtures/workflow-engine.log.2017-09-25');
+      return reader.countLines().then(count => {
+        expect(count).to.eql(74);
+      });
+    });
+  });
+
   describe('filtering', () => {
     it('returns a filtered set', () => {
       const reader = new Reader('test/fixtures/workflow-engine.log.2017-09-25');

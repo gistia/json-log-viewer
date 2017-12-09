@@ -48,6 +48,7 @@
       "require": true,
       "describe": true,
       "sinon": true,
+      "log": true,
       "logger": true
     }
 }

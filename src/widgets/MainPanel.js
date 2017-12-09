@@ -2,15 +2,21 @@ const blessed = require('blessed');
 
 const BaseWidget = require('./BaseWidget');
 const Picker = require('./Picker');
-const Reader = require('../core/reader');
 const Formatter = require('../core/formatter');
 const Filter = require('../core/filters');
 
 class MainPanel extends BaseWidget {
   constructor(opts={}) {
     super(Object.assign({}, { top: '0', height: '99%', handleKeys: true }, opts));
-    this.log('ready');
+    this.on('resize', () => {
+      this.renderLines(true);
+    });
+
+    this.reader = opts.reader;
     this.formatter = new Formatter(this.pageWidth);
+    this.currentLine = 1;
+    this.initialLine = 1;
+    this.renderLines();
   }
 
   get pageHeight() { return this.height - 3; };
@@ -19,34 +25,27 @@ class MainPanel extends BaseWidget {
   get realLine() { return this.initialLine + this.currentLine - 1; };
   get lastRelativeLine() { return this.pageHeight + 1; };
 
-  loadFile(file) {
-    this.file = file;
-    this.reader = new Reader(file);
-    this.currentLine = 1;
-    this.initialLine = 1;
-    this.renderLines();
-  }
-
   format(line, idx) {
     return this.formatter.format(line, idx+1 === this.currentLine);
   }
 
   getLines(forceReload=false) {
     if (forceReload || this.initialLine !== this.lastInitialLine) {
-      global.screen.log('reloading');
+      log('reloading');
       return this.reader.getLines(this.initialLine, this.pageHeight+1).then(lines => {
         this.lastInitialLine = this.initialLine;
         this.lines = lines;
         return lines;
       });
     } else {
-      global.screen.log('not reloading');
+      log('not reloading');
       return Promise.resolve(this.lines);
     }
   }
 
   renderLines(forceReload=false) {
     this.getLines(forceReload).then(lines => {
+      this.emit('renderLines');
       const content = lines.map(this.format.bind(this)).join('\n');
       const list = blessed.element({ tags: true, content });
       this.append(list);
@@ -55,7 +54,7 @@ class MainPanel extends BaseWidget {
   }
 
   handleKeyPress(ch, key) {
-    const shortcut = shortcuts[key.name] || shortcuts[ch];
+    const shortcut = shortcuts[ch] || shortcuts[key.name];
     if (!shortcut) { return; }
 
     const needsRedraw = this[shortcut].bind(this)();
@@ -94,29 +93,55 @@ class MainPanel extends BaseWidget {
     return true;
   }
 
-  firstPage() {
+  goToFirstPage() {
     this.initialLine = 1;
     return true;
   }
 
-  firstViewLine() {
+  goToFirstViewLine() {
     this.currentLine = 1;
     return true;
   }
 
-  lastViewLine() {
+  goToLastViewLine() {
     this.currentLine = this.lastRelativeLine;
     return true;
   }
 
-  middleViewLine() {
+  goToMiddleViewLine() {
     this.currentLine = parseInt(this.lastRelativeLine / 2, 10);
-    global.screen.log('currentLine', this.currentLine);
+    log('currentLine', this.currentLine);
     return true;
   }
 
+  goToLastLine() {
+    this.reader.countLines().then(count => {
+      this.goToLine(count);
+    });
+  }
+
   openSearchDialog(clear=false) {
+    if (clear) {
+      this.lastSearchTerm = null;
+    }
     this.prompt('Search:', this.lastSearchTerm, s => this.search(s));
+  }
+
+  search(term=this.lastSearchTerm) {
+    if (!term) {
+      return this.message('No previous search');
+    }
+    this.lastSearchTerm = term;
+    const pos = this.searchNext(term, false);
+    if (pos > -1) {
+      this.goToLine(pos);
+    } else {
+      this.message(`No matches for ${term}`);
+    }
+  }
+
+  searchNext(_term) {
+    return -1;
   }
 
   openGoToLineDialog() {
@@ -245,13 +270,15 @@ const shortcuts = {
   up: 'moveUp',
   pagedown: 'pageDown',
   pageup: 'pageUp',
-  0: 'firstPage',
-  A: 'firstViewLine',
-  G: 'lastViewLine',
-  C: 'middleViewLine',
+  0: 'goToFirstPage',
+  A: 'goToFirstViewLine',
+  G: 'goToLastViewLine',
+  C: 'goToMiddleViewLine',
+  '$': 'goToLastLine',
 
   // editor operations
   '/': 'openSearchDialog',
+  ':': 'openGoToLineDialog',
   g: 'openGoToLineDialog',
   f: 'toggleSearch',
 

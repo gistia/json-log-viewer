@@ -30,6 +30,27 @@ class Reader {
     });
   }
 
+  countLines(force=false) {
+    if (force || !this.count) {
+      const stream = fs.createReadStream(this.fileName);
+      let count = 0;
+      return new Promise((resolve, reject) => {
+        stream.on('data', (chunk) => {
+          for (let i = 0; i < chunk.length; ++i) {
+            if (chunk[i] === 10) count++;
+          }
+        }).on('end', () => {
+          this.count = count;
+          resolve(count);
+        }).on('error', (err) => {
+          reject(err);
+        });
+      });
+    } else {
+      return Promise.resolve(this.count);
+    }
+  }
+
   getLines(start, size) {
     const lines = [];
     const stream = fs.createReadStream(this.fileName);
