@@ -25,6 +25,11 @@ describe('Formatter', () => {
       const line = { message: 'Hello world', level: 'info', timestamp: '2017-09-25T22:48:46.651Z', other: '1' };
       expect(format(line)).to.eql('2017-09-25T22:48:46.651Z  {#ffff94-fg}{bold}info {/bold}{/#ffff94-fg}  *  Hello world                                                    ');
     });
+
+    it('exclude new lines', () => {
+      const line = { message: 'Hello\nworld', level: 'info', timestamp: '2017-09-25T22:48:46.651Z', other: '1' };
+      expect(format(line)).to.eql('2017-09-25T22:48:46.651Z  {#ffff94-fg}{bold}info {/bold}{/#ffff94-fg}  *  Hello                                                          ');
+    });
   });
 
   describe('insertAt', () => {

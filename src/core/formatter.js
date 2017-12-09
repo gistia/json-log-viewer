@@ -27,7 +27,8 @@ class Formatter {
     const data = _.omit(line, ['timestamp', 'level', 'message']);
     const hasData = Object.keys(data).length ? '*' : ' ';
     const level = this.padEnd(line.level, 5);
-    const rawLine = this.padEnd(`${line.timestamp}  ${level}  ${hasData}  ${line.message}`, this.length-1);
+    const message = line.message.split('\n')[0];
+    const rawLine = this.padEnd(`${line.timestamp}  ${level}  ${hasData}  ${message}`, this.length-1);
     const [ open, close ] = levelColors[line.level] || ['', ''];
     const result = (selected ? '{white-bg}{black-fg}' : '') +
       this.insertMany(rawLine, [
