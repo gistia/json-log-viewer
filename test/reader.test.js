@@ -1,7 +1,7 @@
 const Reader = require('../src/core/reader');
 const { ContainsFilter } = require('../src/core/filters');
 
-describe.only('Reader', () => {
+describe('Reader', () => {
   describe('getLines', () => {
     it('returns the lines of a file', () => {
       const reader = new Reader('test/fixtures/workflow-engine.log.2017-09-25');

@@ -16,6 +16,14 @@ class Reader {
     this.filters.push(filter);
   }
 
+  clearFilters() {
+    this.filters = [];
+  }
+
+  isFiltered() {
+    return this.filters.length;
+  }
+
   matchFilters(line) {
     return !this.filters.find(filter => {
       return !filter.apply(line);
