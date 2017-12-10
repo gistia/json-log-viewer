@@ -42,6 +42,18 @@ class StatusLine extends blessed.Box {
     return `${left}${new Array(spaces).join(' ')}${right}`;
   }
 
+  formatSize(bytes) {
+    if (bytes > 1000000000) {
+      return (bytes / 1000000000.0).toPrecision(3) + 'Gb';
+    } else if (bytes > 1000000) {
+      return (bytes / 1000000.0).toPrecision(3) + 'Mb';
+    } else if (bytes > 1000) {
+      return (bytes / 1000.0).toPrecision(3) + 'Kb';
+    } else {
+      return bytes + 'b';
+    }
+  }
+
   stripColors(text) {
     return (text || '').replace(COLOR_TAG_REGEX, '').replace(/\{\/}/g, '');
   };
@@ -49,8 +61,9 @@ class StatusLine extends blessed.Box {
   renderStatus() {
     const [fileName, ...path] = this.reader.fileName.split('/').reverse();
     const file = `{bold}{#dfdfdf-fg}${path.reverse().join('/')}/{/#dfdfdf-fg}${fileName}{/}`;
+    const mem = `${this.formatSize(process.memoryUsage().heapUsed)}`;
     const line = `{black-fg}{white-bg}{bold} ${this.mainPanel.realLine}{/bold}{#555-fg} / ${this.count} {/}`;
-    this.setContent(this.makeLine(` ${file} `, `${line} `));
+    this.setContent(this.makeLine(` ${file} `, `${mem} ${line} `));
     this.screen.render();
   }
 }

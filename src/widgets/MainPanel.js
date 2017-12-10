@@ -5,6 +5,7 @@ const LogDetails = require('./LogDetails');
 const Picker = require('./Picker');
 const Formatter = require('../core/formatter');
 const Filter = require('../core/filters');
+const Buffer = require('../core/buffer');
 
 class MainPanel extends BaseWidget {
   constructor(opts={}) {
@@ -13,7 +14,7 @@ class MainPanel extends BaseWidget {
       this.renderLines(true);
     });
 
-    this.reader = opts.reader;
+    this.reader = new Buffer(this.pageHeight * 3, opts.reader);
     this.formatter = new Formatter(this.pageWidth);
     this.currentLine = 1;
     this.initialLine = 1;
