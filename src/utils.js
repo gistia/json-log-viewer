@@ -95,7 +95,7 @@ const trunc = (text, length, ignoreColors=false) => {
 const levelColors = {
   debug: s => `{cyan-fg}${s}{/cyan-fg}`,
   info: s => `{#ffff94-fg}{bold}${s}{/bold}{/#ffff94-fg}`,
-  warn: s => `{orange-fg}${s}{/orange-fg}`,
+  warn: s => `{#ffa500-fg}${s}{/#ffa500-fg}`,
   error: s => `{red-fg}${s}{/red-fg}`,
 };
 
