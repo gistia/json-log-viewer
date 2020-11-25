@@ -38,7 +38,7 @@ npm install --global json-log-viewer
 ## Usage
 
 ```bash
-jv application.log.2017-01-01 --sort -timestamp
+jv application.log.2017-01-01 --sort timestamp
 ```
 
 ### Configuration
